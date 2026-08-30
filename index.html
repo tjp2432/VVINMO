@@ -376,23 +376,29 @@
     }
     @media (max-width: 768px) {
       nav { padding: 0.7rem 5%; }
-      .hamburger { display: block; }
+      .hamburger { display: block; z-index: 1300; }
       .nav-links {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
+        display: flex;
+        position: fixed;
+        top: 0;
         right: 0;
-        background: rgba(22,18,24,0.97);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        left: auto;
+        height: 100vh;
+        width: 78vw;
+        max-width: 300px;
+        background: rgba(22,18,24,0.98);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
         flex-direction: column;
-        padding: 1rem 5% 1.2rem;
-        gap: 0.9rem;
-        border-top: 1px solid rgba(255,255,255,0.06);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        padding: 78px 1.6rem 1.6rem;
+        gap: 1.1rem;
+        border-left: 1px solid rgba(255,255,255,0.06);
+        box-shadow: -8px 0 32px rgba(0,0,0,0.35);
+        transform: translateX(100%);
+        transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
+        z-index: 1250;
       }
-      .nav-links.open { display: flex; }
+      .nav-links.open { transform: translateX(0); }
       .nav-links a { padding: 0.4rem 0; font-size: 1.05rem; }
       .hero { height: 82vh; min-height: 520px; }
       .hero-logo-glass { width: 300px; height: 300px; padding: 22px; }
@@ -430,11 +436,11 @@
     <div class="nav-container">
       <div class="logo" style="gap:14px;">
         <img src="./LOGO HEADER.png" alt="AV" style="height:46px; width:auto; display:block; transform: scale(1.5); transform-origin: left center; position: relative; top: 3px;">
-        <div style="display:flex; flex-direction:column; line-height:1; justify-content:center; margin-left:22px;">
-          <span style="font-family:Montserrat,Inter,sans-serif; font-weight:700; font-size:0.62rem; letter-spacing:3px; color:#8a8a8a; line-height:1;">INMOBILIΛRIΛ-INTEGRΛL</span>
-          <div style="display:flex; gap:6px; margin-top:3px; line-height:1;">
-            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:1.28rem; letter-spacing:1.9px; color:#dd0074;">VERONICΛ</span>
-            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:1.28rem; letter-spacing:1.9px; color:#8e2158;">VILLΛFΛÑE</span>
+        <div style="display:flex; flex-direction:column; line-height:1; justify-content:center; align-items:center; text-align:center; margin-left:22px;">
+          <span style="font-family:Montserrat,Inter,sans-serif; font-weight:700; font-size:0.62rem; letter-spacing:3px; color:#8a8a8a; line-height:1; text-align:center;">INMOBILIΛRIΛ-INTEGRΛL</span>
+          <div style="display:flex; gap:6px; margin-top:3px; line-height:1; justify-content:center; white-space:nowrap; align-items:baseline;">
+            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:20.5px; letter-spacing:1.9px; color:#dd0074; white-space:nowrap; flex-shrink:0; line-height:1; display:inline-block;">VERONICΛ</span>
+            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:20.5px; letter-spacing:1.9px; color:#8e2158; white-space:nowrap; flex-shrink:0; line-height:1; display:inline-block;">VILLΛFΛÑE</span>
           </div>
         </div>
       </div>
@@ -447,6 +453,7 @@
     </div>
   </nav>
 
+  <div id="navOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.38); z-index:1240;"></div>
   <!-- Hero -->
   <header class="hero">
     <div>
@@ -662,9 +669,11 @@
     <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.643.874 5.08 2.347 7.04L4 28l6.08-1.99A11.94 11.94 0 0016 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 21.5c-1.85 0-3.66-.49-5.23-1.42l-.375-.22-3.61 1.18 1.18-3.52-.245-.36A9.46 9.46 0 016.5 15c0-5.24 4.26-9.5 9.5-9.5s9.5 4.26 9.5 9.5-4.26 9.5-9.5 9.5zm7.73-6.9c-.42-.21-2.48-1.22-2.87-1.36-.39-.14-.67-.21-.95.21-.28.42-1.09 1.36-1.33 1.64-.24.28-.49.31-.91.1-.42-.21-1.77-.65-3.37-2.08-1.25-1.11-2.09-2.48-2.33-2.9-.24-.42-.03-.65.18-.86.19-.19.42-.49.63-.73.21-.24.28-.42.42-.7.14-.28.07-.52-.03-.73-.1-.21-.95-2.29-1.3-3.14-.34-.82-.69-.71-.95-.72l-.81-.01c-.28 0-.73.1-1.11.52-.39.42-1.46 1.43-1.46 3.48s1.5 4.04 1.71 4.32c.21.28 2.95 4.5 7.15 6.31.99.43 1.77.69 2.37.88.99.31 1.9.27 2.61.16.8-.12 2.48-1.01 2.83-1.99.35-.97.35-1.81.24-1.99-.1-.18-.39-.28-.81-.49z"/></svg>
   </a>
   <script>
-    const btn=document.getElementById('hamburger'), links=document.getElementById('navLinks');
-    btn&&links&&btn.addEventListener('click',()=>links.classList.toggle('open'));
-    links&&links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>links.classList.remove('open')));
+    const btn=document.getElementById('hamburger'), links=document.getElementById('navLinks'), overlay=document.getElementById('navOverlay');
+    function toggleMenu(){ links.classList.toggle('open'); overlay.style.display=links.classList.contains('open')?'block':'none'; document.body.style.overflow=links.classList.contains('open')?'hidden':''; }
+    btn&&links&&btn.addEventListener('click',toggleMenu);
+    overlay&&overlay.addEventListener('click',toggleMenu);
+    links&&links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ links.classList.remove('open'); overlay.style.display='none'; document.body.style.overflow=''; }));
   </script>
 
 </body>
