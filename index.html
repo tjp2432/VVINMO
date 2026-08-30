@@ -59,11 +59,9 @@
       max-width: 1200px;
       margin: 0 auto;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      position: relative;
     }
-    .hamburger { position: absolute; right: 0; }
 
     .logo {
       display: flex;
@@ -378,7 +376,8 @@
     }
     @media (max-width: 768px) {
       nav { padding: 0.7rem 5%; }
-      .hamburger { display: block; z-index: 1300; }
+      .nav-container { justify-content: center; position: relative; }
+      .hamburger { display: block; z-index: 1300; position: absolute; right: 0; }
       .nav-links {
         display: flex;
         position: fixed;
