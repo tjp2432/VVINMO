@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verónica Villafañe - Inmobiliaria</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2d3e50;
+      --secondary: #c0392b;
+      --accent: #e67e22;
+      --light: #ece0d0;
+      --white: #f7ede0;
+      --text: #2c3e50;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      background: var(--white);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(22,18,24,0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 0.85rem 5%;
+      box-shadow: none;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .logo-svg { display: block; }
+    .logo-svg-hero { filter: drop-shadow(0 3px 8px rgba(0,0,0,0.35)); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      font-weight: 500;
+      color: #d6d6d6;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #ff3d9a;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      background: #c0006e;
+      color: var(--white);
+      border-radius: 5px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #a0005a;
+    }
+
+    .hero {
+      height: 88vh;
+      min-height: 560px;
+      background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url('./HERO.jpg');
+      background-size: cover;
+      background-position: center 24%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--white);
+      position: relative;
+      -webkit-mask-image: linear-gradient(to bottom, black 96.5%, transparent 100%);
+      mask-image: linear-gradient(to bottom, black 96.5%, transparent 100%);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 8%;
+      background: linear-gradient(to bottom, transparent 0%, rgba(247,237,224,0.92) 100%);
+      pointer-events: none;
+    }
+
+    .hero-logo-glass {
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: rgba(25,18,28,0.38);
+      backdrop-filter: blur(20px) saturate(1.3);
+      -webkit-backdrop-filter: blur(20px) saturate(1.3);
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      margin: 0 auto 1.5rem;
+      overflow: hidden;
+      background-clip: padding-box;
+      transform: translateZ(0);
+      isolation: isolate;
+    }
+    .hero-logo-glass img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+    .hero > div { position: relative; z-index: 1; padding-top: 72px; }
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Sections */
+    .section {
+      padding: 4rem 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+      content-visibility: auto;
+      contain-intrinsic-size: 600px;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+      font-size: 2.2rem;
+      color: var(--primary);
+    }
+
+    /* Properties Grid */
+    .properties-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .property-card {
+      background: var(--white);
+      border-radius: 20px;
+      corner-shape: superellipse(2);
+      corner-smoothing: 60%;
+      clip-path: url(#squircle-20-continuous);
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .property-card .property-img {
+      border-radius: 14px;
+      corner-shape: superellipse(2);
+      corner-smoothing: 60%;
+      clip-path: url(#squircle-20-continuous);
+      margin: 8px 8px 0 8px;
+      overflow: hidden;
+    }
+
+    .property-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .property-img {
+      height: 200px;
+      background: #ddd;
+    }
+
+    .property-content {
+      padding: 1.5rem;
+    }
+
+    .property-price {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* About */
+    .about-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    /* Contact */
+    #contacto {
+      background: linear-gradient(135deg, #f7ede0 0%, #ece0d0 100%);
+      padding: 4rem 5%;
+    }
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .contact-glass {
+      background: rgba(247,237,224,0.68);
+      backdrop-filter: blur(16px) saturate(1.2);
+      -webkit-backdrop-filter: blur(16px) saturate(1.2);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 20px;
+      corner-shape: superellipse(2);
+      corner-smoothing: 60%;
+      clip-path: url(#squircle-20-continuous);
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(44,62,80,0.10), inset 0 1px 0 rgba(255,255,255,0.7);
+      max-width: 640px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url('./LOGO HEADER.png') center 45% / 58% no-repeat;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+    .contact-glass > * { position: relative; }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: rgba(45,35,40,0.08);
+      backdrop-filter: blur(10px) saturate(1.1);
+      -webkit-backdrop-filter: blur(10px) saturate(1.1);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 18px;
+      corner-shape: superellipse(2);
+      corner-smoothing: 60%;
+      box-shadow: 0 1px 4px rgba(44,62,80,0.06), inset 0 1px 0 rgba(255,255,255,0.7);
+      font-family: inherit;
+      outline: none;
+    }
+    #contacto .btn {
+      background: rgba(192,0,110,0.88);
+      backdrop-filter: blur(10px) saturate(1.2);
+      -webkit-backdrop-filter: blur(10px) saturate(1.2);
+      border-radius: 18px;
+      corner-shape: superellipse(2);
+      corner-smoothing: 60%;
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: 0 4px 16px rgba(192,0,110,0.22);
+      display: block;
+      margin: 1.4rem auto 0;
+      width: fit-content;
+    }
+
+    .whatsapp-float {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      width: 58px;
+      height: 58px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      z-index: 1200;
+      transition: transform 0.2s;
+    }
+    .whatsapp-float:hover { transform: scale(1.07); }
+    .whatsapp-float svg { width: 32px; height: 32px; fill: white; }
+
+    /* Footer */
+    footer {
+      background: #121214;
+      color: #d6d6d6;
+      padding: 3rem 5% 1rem;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand h3 {
+      margin-bottom: 1rem;
+    }
+
+    .footer-links h4,
+    .footer-contact h4 {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .footer-links ul li,
+    .footer-contact ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid #4a5568;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <clipPath id="squircle-20" clipPathUnits="objectBoundingBox">
+        <path d="M 0.09 0 C 0.035 0 0 0.035 0 0.09 L 0 0.91 C 0 0.965 0.035 1 0.09 1 L 0.91 1 C 0.965 1 1 0.965 1 0.91 L 1 0.09 C 1 0.035 0.965 0 0.91 0 Z" />
+      </clipPath>
+      <clipPath id="squircle-20-continuous" clipPathUnits="objectBoundingBox">
+        <path d="M 0.105 0 C 0.04 0 0 0.04 0 0.105 L 0 0.895 C 0 0.96 0.04 1 0.105 1 L 0.895 1 C 0.96 1 1 0.96 1 0.895 L 1 0.105 C 1 0.04 0.96 0 0.895 0 Z" />
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="nav-container">
+      <div class="logo" style="gap:14px;">
+        <img src="./LOGO HEADER.png" alt="AV" style="height:46px; width:auto; display:block; transform: scale(1.5); transform-origin: left center; position: relative; top: 3px;">
+        <div style="display:flex; flex-direction:column; line-height:1; justify-content:center; margin-left:22px;">
+          <span style="font-family:Montserrat,Inter,sans-serif; font-weight:700; font-size:0.62rem; letter-spacing:3px; color:#8a8a8a; line-height:1;">INMOBILIΛRIΛ-INTEGRΛL</span>
+          <div style="display:flex; gap:6px; margin-top:3px; line-height:1;">
+            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:1.28rem; letter-spacing:1.9px; color:#dd0074;">VERONICΛ</span>
+            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:1.28rem; letter-spacing:1.9px; color:#8e2158;">VILLΛFΛÑE</span>
+          </div>
+        </div>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#propiedades">Propiedades</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div>
+      <div class="hero-logo-glass">
+        <img src="./LOGO VV transp_backup.png" alt="Verónica Villafañe - Negocios Inmobiliarios">
+      </div>
+      <p>Tu inmobiliaria de confianza con propiedades rodeadas de naturaleza</p>
+      <a href="#propiedades" class="btn">Ver propiedades</a>
+    </div>
+  </header>
+
+  <!-- Section: Inicio -->
+  <section class="section" id="inicio" style="text-align:center;">
+    <h2 class="section-title">Bienvenidos a Verónica Villafañe</h2>
+    <p style="max-width:780px; margin:0 auto; font-size:1.1rem;">Somos una inmobiliaria comprometida con encontrar el espacio que realmente necesitas. Con años de experiencia en el mercado, ofrecemos un servicio cercano, profesional y transparente. Ya sea que busques comprar tu primera vivienda, invertir en propiedades o alquilar un espacio, estamos aquí para ayudarte en cada paso del proceso.</p>
+  </section>
+
+  <!-- Section: Propiedades -->
+  <section class="section" id="propiedades">
+    <h2 class="section-title">Propiedades</h2>
+    <div class="properties-grid">
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/58/21/34/25/1200x1200/2028665396.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">USD 249.000</span>
+          <h3>Chalet en Esquina - Saavedra</h3>
+          <p>Crisólogo Larralde 4196 · 136m² · 4 amb · 3 dorm · a refaccionar, lote propio, terraza con parrilla. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/veclcain-casa-tipo-chalet-en-esquina-saavedra-a-refaccionar-58213425.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/58/40/53/69/1200x1200/2033970674.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">USD 117.000</span>
+          <h3>2 Amb c/ Balcón Terraza - Villa Urquiza</h3>
+          <p>Nuñez 4412 · 39m² cub (53m² tot) · 2 amb · luminoso, frente. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/veclapin-hermoso-2-ambientes-c-balcon-terraza-todo-luz-y-58405369.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/59/08/19/40/1200x1200/2052112076.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">USD 150.000</span>
+          <h3>3 Amb Contrafrente - Belgrano</h3>
+          <p>Moldes 2236 · 53m² · 3 amb · balcón, losa radiante. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/veclapin-3-ambientes-contrafrente-balcon-super-luminoso!-59081940.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/59/91/17/48/1200x1200/2072840035.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">$750.000 + $180.000 exp.</span>
+          <h3>2 Amb Piso 19 - Colegiales</h3>
+          <p>Conesa 986 · 42m² · 2 amb · contrafrente luminoso. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclapin-gral-emilio-conesa-986-piso-19$750.000-$180.000-59911748.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('./oficina57174164.jpg') center/cover; background-color:#e8e0d0;"></div>
+        <div class="property-content">
+          <span class="property-price">Consultar</span>
+          <h3>Oficina 140m² - Pellegrini 738</h3>
+          <p>Carlos Pellegrini 738 · 140m² · oficina. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/veclocin-excelente-oficina-140-m-sup2--c.-pellegrini-738-piso-57174164.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/59/88/09/62/1200x1200/2071942098.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">$1.200.000 + $275.000 exp.</span>
+          <h3>2 Amb al Frente 62m² - Colegiales</h3>
+          <p>Vidal 1541 · 56m² cub (62m² tot) · balcón aterrazado. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclapin-colegiales-hermoso-2-ambientes-al-frente-62-m-sup2-59880962.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/58/64/37/32/1200x1200/2040580391.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">USD 89.000</span>
+          <h3>2 Amb c/ 2 Patios - Villa Crespo</h3>
+          <p>Loyola 1381 · 37m² cub (53m² tot) · al frente luminoso. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/veclapin-villa-crespo-2-ambientes-al-frente-con-2-patios!-53-58643732.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/58/97/34/60/1200x1200/2049232169.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">USD 175.000</span>
+          <h3>PH 4 Amb 146m² - Villa Crespo</h3>
+          <p>Loyola 1531 · 100m² cub · 2 plantas, terraza, sin expensas. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/veclphin-ph-4-ambientes-rustico-146-m-sup2--totales-en-venta-a-58973460.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/52/04/24/59/1200x1200/1874714108.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">$850.000 + $160.000 exp.</span>
+          <h3>2 Amb al Frente - Saavedra</h3>
+          <p>Ruiz Huidobro 4705 · 37m² · balcón lateral. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclapin-hermoso-2-ambientes-al-frente-todo-luz-y-verde!-52042459.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/51/87/78/58/1200x1200/1870937734.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">$1.000.000 + $206.000 exp.</span>
+          <h3>Semipiso 2 Amb c/ Patio - Núñez</h3>
+          <p>Ciudad de la Paz · 40m² · patio, semipiso. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclapin-excelente-semipiso-2-ambientes-con-patio!-51877858.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/59/57/53/76/1200x1200/2064871171.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">$420.000 + $141.000 exp.</span>
+          <h3>Monoambiente - San Nicolás</h3>
+          <p>Tucumán 1738 · 23m² · refaccionado, luminoso. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclapin-impecable-monoambiente-refaccionado-59575376.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/54/32/64/70/1200x1200/1928246382.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">$1.200.000</span>
+          <h3>PH 3 Amb 70m² - Monte Castro</h3>
+          <p>Pasaje Hungria 1170 · 70m² cub · sin expensa. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclphin-hermoso-ph-3-ambientes-amplio-luminoso!-sin-expensa!-54326470.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('./download.png') center/cover; background-color:#e8e0d0;"></div>
+        <div class="property-content">
+          <span class="property-price">Consultar</span>
+          <h3>3 Amb Belgrano Frente Balcón</h3>
+          <p>Belgrano · 3 amb · frente balcón. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclapin-amplio-3-ambientes-belgrano-frente-balcon-56797736.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('https://imgar.zonapropcdn.com/avisos/resize/1/00/58/74/34/21/1200x1200/2043270900.jpg') center/cover;"></div>
+        <div class="property-content">
+          <span class="property-price">USD 185.000</span>
+          <h3>PH 4 Amb 168m² - Villa Crespo</h3>
+          <p>Loyola 1533 · 73m² cub (168m² tot) · a reciclar. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/veclphin-excelente-ph-4-ambientes-168-m-sup2--totales-a-58743421.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+      <div class="property-card">
+        <div class="property-img" style="background: url('./1.png') center/cover; background-color:#e8e0d0;"></div>
+        <div class="property-content">
+          <span class="property-price">Consultar</span>
+          <h3>2 Amb Núñez Lateral Luminoso</h3>
+          <p>Núñez · 2 amb · apto profesional. <a href="https://www.zonaprop.com.ar/propiedades/clasificado/alclapin-2-ambientes-nunez-lateral-luminoso-apto-profesional-59083758.html" target="_blank" style="color:#c0006e; font-weight:600;">Ver ficha</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Nosotros -->
+  <section class="section" id="nosotros" style="text-align:center;">
+    <h2 class="section-title">Nuestra Historia</h2>
+    <p style="max-width:780px; margin:0 auto;">Fundada con el objetivo de ofrecer un servicio inmobiliario de confianza. En Verónica Villafañe, creemos que comprar o vender una propiedad es una de las decisiones más importantes en la vida de una persona, por eso nos esforzamos en construir relaciones duraderas basadas en la honestidad y los resultados.</p>
+    <p style="max-width:780px; margin:1rem auto 0;">Nuestro equipo de profesionales está capacitado para asesorarte con el mejor conocimiento del mercado local, garantizando transparencia en cada transacción.</p>
+  </section>
+
+  <!-- Section: Contacto -->
+  <section id="contacto">
+    <div class="contact-glass">
+      <div class="contact-form">
+        <h2 class="section-title">Contactanos</h2>
+        <form>
+          <div class="form-group">
+            <label>Nombre completo</label>
+            <input type="text" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="tu@email.com" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" placeholder="+54 9 11 1234-5678">
+          </div>
+          <div class="form-group">
+            <label>Mensaje</label>
+            <textarea rows="4" placeholder="Cuéntanos qué propiedad te interesa o cómo podemos ayudarte"></textarea>
+          </div>
+          <button type="submit" class="btn">Enviar mensaje</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Verónica Villafañe</h3>
+          <p>Tu aliado en el mercado inmobiliario. Con dedicación y profesionalismo, transformamos tus metas en realidad.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Enlaces</h4>
+          <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#propiedades">Propiedades</a></li>
+            <li><a href="#nosotros">Nosotros</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contacto</h4>
+          <ul>
+            <li>📞 +54 9 11 1234-5678</li>
+            <li>✉️ info@veronicavillafañe.com</li>
+            <li>📍 Dirección: Av. Principal 123, Ciudad</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Verónica Villafañe - Inmobiliaria Integral. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/5491112345678" target="_blank" aria-label="WhatsApp">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.643.874 5.08 2.347 7.04L4 28l6.08-1.99A11.94 11.94 0 0016 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 21.5c-1.85 0-3.66-.49-5.23-1.42l-.375-.22-3.61 1.18 1.18-3.52-.245-.36A9.46 9.46 0 016.5 15c0-5.24 4.26-9.5 9.5-9.5s9.5 4.26 9.5 9.5-4.26 9.5-9.5 9.5zm7.73-6.9c-.42-.21-2.48-1.22-2.87-1.36-.39-.14-.67-.21-.95.21-.28.42-1.09 1.36-1.33 1.64-.24.28-.49.31-.91.1-.42-.21-1.77-.65-3.37-2.08-1.25-1.11-2.09-2.48-2.33-2.9-.24-.42-.03-.65.18-.86.19-.19.42-.49.63-.73.21-.24.28-.42.42-.7.14-.28.07-.52-.03-.73-.1-.21-.95-2.29-1.3-3.14-.34-.82-.69-.71-.95-.72l-.81-.01c-.28 0-.73.1-1.11.52-.39.42-1.46 1.43-1.46 3.48s1.5 4.04 1.71 4.32c.21.28 2.95 4.5 7.15 6.31.99.43 1.77.69 2.37.88.99.31 1.9.27 2.61.16.8-.12 2.48-1.01 2.83-1.99.35-.97.35-1.81.24-1.99-.1-.18-.39-.28-.81-.49z"/></svg>
+  </a>
+
+</body>
+</html>
