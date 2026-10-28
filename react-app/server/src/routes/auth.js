@@ -11,8 +11,13 @@ import { signAccessToken, signRefreshToken, requireAuth } from '../middleware/au
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// POST /api/auth/register - solicita alta con cualquier mail (según requerimiento)
+// POST /api/auth/register - alta de usuarios.
+// REGISTRO_PUBLICO=false (default): no hay registro público, solo el
+// administrador da de alta cuentas. Poner "true" en server/.env para abrirlo.
 router.post('/register', async (req, res) => {
+  if (process.env.REGISTRO_PUBLICO !== 'true') {
+    return res.status(403).json({ error: 'Registro deshabilitado. Pedile acceso al administrador de la inmobiliaria.' });
+  }
   try {
     const data = registerSchema.parse(req.body);
 

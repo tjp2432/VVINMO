@@ -6,10 +6,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(()=>{
     try{ const c = sessionStorage.getItem('vvinmook_user'); return c?JSON.parse(c):null; }catch{ return null; }
   });
-  const [loading, setLoading] = useState(false); // no bloquea render inicial
+  const [loading, setLoading] = useState(true); // arranca en true: ProtectedRoute espera a hidratar la sesión de la cookie
 
-  async function refresh() {
-    const ctrl = new AbortController();
+  // Devuelve el cleanup para que el timer se cancele si el provider se desmonta
+  function refresh() {
     const t = setTimeout(async ()=>{
       try {
         const data = await api('/auth/me');
@@ -20,18 +20,14 @@ export function AuthProvider({ children }) {
         try{ sessionStorage.removeItem('vvinmook_user'); }catch{}
       } finally { setLoading(false); }
     }, 120); // defer para no bloquear paint
-    return ()=> { clearTimeout(t); ctrl.abort(); };
+    return ()=> clearTimeout(t);
   }
 
-  useEffect(()=> { refresh(); }, []);
+  useEffect(()=> refresh(), []);
 
   async function login(email, password) {
     const data = await api('/auth/login', { method:'POST', body:{ email, password } });
     return data; // {need_2fa, _dev_code}
-  }
-  async function register(payload) {
-    const data = await api('/auth/register', { method:'POST', body: payload });
-    return data;
   }
   async function verify2FA(email, code, purpose='login') {
     const data = await api('/auth/verify-2fa', { method:'POST', body:{ email, code, purpose } });
@@ -46,5 +42,5 @@ export function AuthProvider({ children }) {
     try{ sessionStorage.removeItem('vvinmook_user'); }catch{}
   }
 
-  return <AuthCtx.Provider value={{ user, loading, login, register, verify2FA, logout, refresh }}>{children}</AuthCtx.Provider>
+  return <AuthCtx.Provider value={{ user, loading, login, verify2FA, logout, refresh }}>{children}</AuthCtx.Provider>
 }
