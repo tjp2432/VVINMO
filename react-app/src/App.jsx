@@ -1,0 +1,140 @@
+import { useState, memo, lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { AuthProvider, useAuth } from './contexts/AuthContext.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+import PropertyCard from './components/PropertyCard.jsx'
+import { DESTACADAS } from './data/propiedades.js'
+import './App.css'
+const Login = lazy(()=> import('./pages/Login.jsx'))
+const Verify2FA = lazy(()=> import('./pages/Verify2FA.jsx'))
+const Privacidad = lazy(()=> import('./pages/Privacidad.jsx'))
+const PropertyDetail = lazy(()=> import('./pages/PropertyDetail.jsx'))
+const Propiedades = lazy(()=> import('./pages/Propiedades.jsx'))
+const Dash = lazy(()=> import('./pages/Dashboard.jsx'))
+
+
+const Navbar = memo(function Navbar(){
+  const [open, setOpen] = useState(false)
+  const { user, logout } = useAuth()
+  return (
+    <>
+      <nav>
+        <div className="nav-container">
+          <Link to="/" onClick={()=> setOpen(false)} className="logo" style={{ gap: 10, marginLeft: -14, cursor:'pointer' }}>
+            <img src="/pdf-logos/logo_horizontal_transp.png" alt="Veronica Villafañe - Inmobiliaria Integral" loading="eager" decoding="async" fetchPriority="high" draggable={false} onDragStart={e=>e.preventDefault()} style={{ height: 52, width: 'auto', display: 'block', position: 'relative', top: 2 }} />
+          </Link>
+          <button className="hamburger" onClick={() => setOpen(!open)} aria-label="Menú">☰</button>
+          <ul className={`nav-links ${open ? 'open' : ''}`}>
+            <li><Link to="/propiedades" onClick={() => setOpen(false)}>Propiedades</Link></li>
+            <li><a href="/#nosotros" onClick={() => setOpen(false)}>Nosotros</a></li>
+            <li><Link to="/privacidad" onClick={() => setOpen(false)}>Privacidad</Link></li>
+            {user && (
+              <>
+                {user.role==='ADMIN' && <li><Link to="/admin" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Panel Admin</Link></li>}
+                {user.role==='PROPIETARIO' && <li><Link to="/propietario" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Mi Panel</Link></li>}
+                {user.role==='INQUILINO' && <li><Link to="/inquilino" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Mi Panel</Link></li>}
+                <li><button onClick={logout} style={{background:'transparent',border:'1px solid #555',color:'#d6d6d6',padding:'6px 12px',borderRadius:20,cursor:'pointer'}}>Salir ({user.role})</button></li>
+              </>
+            )}
+          </ul>
+        </div>
+      </nav>
+      {open && <div onClick={() => setOpen(false)} style={{ display: 'block', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.38)', zIndex: 1240 }}></div>}
+    </>
+  )
+})
+
+const Home = memo(function Home(){
+  return (
+    <>
+      <header className="hero">
+        <div>
+          <div className="hero-logo-glass" style={{flexDirection:'column', gap:0}}>
+            <img src="/pdf-logos/logo_AV_grande_transp.png" alt="Veronica Villafañe - Inmobiliaria Integral" loading="eager" decoding="async" draggable={false} onDragStart={e=>e.preventDefault()} style={{maxWidth:'82%', maxHeight:'82%', width:'auto', height:'auto', objectFit:'contain', display:'block'}} />
+          </div>
+          <p>Tu inmobiliaria de confianza, conectamos personas con sus sueños. Encontranos en Virrey del Pino 2829, CABA. Lunes a Viernes de 10:00 hs a 19:00 hs.</p>
+        </div>
+      </header>
+      <section className="section" id="inicio" style={{ textAlign: 'center', position:'relative', top:-16 }}>
+        <h2 className="section-title">¿Quienes somos?</h2>
+        <p style={{ maxWidth: 780, margin: '0 auto', fontSize: '1.1rem' }}>Somos una inmobiliaria comprometida con encontrar el espacio que realmente necesitas. Con años de experiencia, servicio cercano y transparente.</p>
+      </section>
+      <section className="section" id="propiedades">
+        <h2 className="section-title">Propiedades destacadas</h2>
+        <div className="properties-grid">
+          {DESTACADAS.map(p => <PropertyCard key={p.id} p={p} />)}
+        </div>
+        <div style={{textAlign:'center',marginTop:28}}>
+          <Link to="/propiedades" className="btn" style={{background:'rgba(140,0,80,0.85)'}}>Ver más propiedades</Link>
+        </div>
+      </section>
+      <section className="section" id="nosotros" style={{ textAlign: 'center' }}>
+        <h2 className="section-title">Nuestra Historia</h2>
+        <p style={{ maxWidth: 780, margin: '0 auto' }}>Fundada para ofrecer un servicio inmobiliario de confianza. Transformamos metas en realidad con honestidad y resultados.</p>
+      </section>
+      <section id="contacto">
+        <div className="contact-glass">
+          <div className="contact-form">
+            <h2 className="section-title">Contactanos</h2>
+            <form onSubmit={e => e.preventDefault()}>
+              <div className="form-group"><label>Nombre completo</label><input placeholder="Tu nombre" required /></div>
+              <div className="form-group"><label>Email</label><input type="email" placeholder="tu@email.com" required /></div>
+              <div className="form-group"><label>Teléfono</label><input placeholder="+54 9 11 1234-5678" /></div>
+              <div className="form-group"><label>Mensaje</label><textarea rows={4} placeholder="Cuéntanos qué propiedad te interesa"></textarea></div>
+              <button type="submit" className="btn">Enviar mensaje</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      <footer>
+        <div className="footer-container">
+          <div className="footer-grid">
+            <div className="footer-brand"><h3>Verónica Villafañe</h3><p>Tu aliado en el mercado inmobiliario.</p><p style={{fontSize:12,opacity:0.6,marginTop:8}}><Link to="/privacidad" style={{color:'#ff8ac6'}}>Política de Privacidad Ley 25.326</Link> · Base AAIP · Datos encriptados AES-256</p></div>
+            <div className="footer-links"><h4>Enlaces</h4><ul><li><Link to="/">Inicio</Link></li><li><Link to="/privacidad">Privacidad</Link></li></ul></div>
+            <div className="footer-contact"><h4>Contacto</h4><ul><li>📞 +54 9 11 6467-1905</li><li>✉️ info@veronicavillafane.com</li><li>📍 Virrey del Pino 2829, CABA</li></ul></div>
+          </div>
+          <div className="footer-bottom"><p>© 2026 Verónica Villafañe - Inmobiliaria Integral. Todos los derechos reservados.</p></div>
+        </div>
+      </footer>
+      <a className="whatsapp-float" href="https://wa.me/5491164671905" target="_blank" aria-label="WhatsApp"><img src="/wpp logo.png" alt="WhatsApp" loading="lazy" decoding="async" draggable={false} onDragStart={e=>e.preventDefault()} style={{ width: 76, height: 76, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.25))' }} /></a>
+    </>
+  )
+})
+
+function AdminW(){ const { AdminDashboard } = Dash; return <AdminDashboard /> }
+function PropW(){ const { PropDashboard } = Dash; return <PropDashboard /> }
+function InqW(){ const { InquilinoDashboard } = Dash; return <InquilinoDashboard /> }
+
+export default function App(){
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <svg width="0" height="0" style={{ position: 'absolute' }}><defs><clipPath id="squircle-20-continuous" clipPathUnits="objectBoundingBox"><path d="M 0.105 0 C 0.04 0 0 0.04 0 0.105 L 0 0.895 C 0 0.96 0.04 1 0.105 1 L 0.895 1 C 0.96 1 1 0.96 1 0.895 L 1 0.105 C 1 0.04 0.96 0 0.895 0 Z" /></clipPath></defs></svg>
+        <Navbar />
+        <Suspense fallback={<div style={{padding:120,textAlign:'center',opacity:0.6}}>Cargando…</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/propiedades" element={<Propiedades />} />
+            <Route path="/propiedad/:id" element={<PropertyDetail />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/verify-2fa" element={<Verify2FA />} />
+            <Route path="/privacidad" element={<Privacidad />} />
+            <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><Suspense fallback={<div style={{padding:40}}>Cargando panel…</div>}><DashWrapper which="admin"/></Suspense></ProtectedRoute>} />
+            <Route path="/propietario" element={<ProtectedRoute roles={['PROPIETARIO','ADMIN']}><DashWrapper which="prop"/></ProtectedRoute>} />
+            <Route path="/inquilino" element={<ProtectedRoute roles={['INQUILINO','ADMIN']}><DashWrapper which="inq"/></ProtectedRoute>} />
+          </Routes>
+        </Suspense>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
+function DashWrapper({ which }){
+  const [Comp,setComp]=useState(null);
+  useEffect(()=>{ import('./pages/Dashboard.jsx').then(m=>{
+    if(which==='admin') setComp(()=> m.AdminDashboard);
+    else if(which==='prop') setComp(()=> m.PropDashboard);
+    else setComp(()=> m.InquilinoDashboard);
+  });},[which]);
+  if(!Comp) return <div style={{padding:40,textAlign:'center'}}>Cargando panel…</div>;
+  return <Comp />;
+}

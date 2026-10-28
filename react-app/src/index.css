@@ -1,0 +1,6 @@
+/* Optimized - keeps App.css aesthetics intact, removes conflicting #root layout that caused reflows */
+* { -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body { margin:0; background:#f7ede0; }
+#root { min-height:100svh; }
+img { content-visibility:auto; }

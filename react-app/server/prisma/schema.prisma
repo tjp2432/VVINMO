@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+  // Para migrar a Postgres en g2khosting/cloud: cambiar a provider = "postgresql" y DATABASE_URL="postgresql://..."
+}
+
+// SQLite no soporta enums nativos - usamos String con check en app
+// Role: ADMIN | PROPIETARIO | INQUILINO
+// VerificationStatus: PENDING | VERIFIED | REJECTED
+
+model User {
+  id                  String   @id @default(cuid())
+  email               String   @unique // hash para búsqueda, el valor encriptado va en email_encrypted
+  email_encrypted     String   // AES-256-GCM
+  email_hash          String   @unique // sha256 para lookup sin exponer
+  password_hash       String
+  role                String // ADMIN | PROPIETARIO | INQUILINO
+  // Datos personales encriptados (Ley 25.326 - minimización + seguridad)
+  nombre              String
+  apellido            String
+  dni_encrypted       String
+  dni_hash            String   @unique
+  dni_last4           String   // últimos 4 para mostrar sin desencriptar
+  cuit_encrypted      String?
+  cuit_hash           String?  @unique
+  sexo                String // M/F/X
+  tramite_hash        String? // hash del n° trámite, nunca en claro
+  telefono_encrypted  String?
+  fecha_nacimiento    DateTime?
+  renaper_verified    Boolean  @default(false)
+  renaper_verified_at DateTime?
+  renaper_status      String   @default("PENDING") // PENDING | VERIFIED | REJECTED
+  // Ley 25.326 consentimiento
+  consent_given       Boolean  @default(false)
+  consent_version     String?
+  consent_at          DateTime?
+  privacy_accepted_at DateTime?
+  // 2FA
+  twofa_enabled       Boolean  @default(true)
+  twofa_secret        String? // código temporal hasheado
+  twofa_expires_at    DateTime?
+  twofa_verified      Boolean  @default(false)
+  email_verified      Boolean  @default(false)
+  email_verify_code   String?
+  email_verify_expires DateTime?
+  // Cuenta
+  is_active           Boolean  @default(true)
+  is_approved         Boolean  @default(false) // ADMIN debe aprobar propietarios/inquilinos si se configura
+  last_login_at       DateTime?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  // Relaciones
+  properties          Property[] @relation("OwnerProperties")
+  contractsAsTenant   Contract[] @relation("TenantContracts")
+  contractsAsOwner    Contract[] @relation("OwnerContracts")
+  audit_logs          AuditLog[]
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  address     String
+  city        String   @default("CABA")
+  price       String
+  currency    String   @default("USD")
+  type        String // venta/alquiler
+  status      String   @default("disponible") // disponible, alquilada, reservada
+  bedrooms    Int?
+  bathrooms   Int?
+  area_m2     Float?
+  images      String? // JSON array
+  owner_id    String?
+  owner       User?    @relation("OwnerProperties", fields: [owner_id], references: [id])
+  contracts   Contract[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Contract {
+  id           String   @id @default(cuid())
+  property_id  String
+  property     Property @relation(fields: [property_id], references: [id])
+  owner_id     String
+  owner        User     @relation("OwnerContracts", fields: [owner_id], references: [id])
+  tenant_id    String
+  tenant       User     @relation("TenantContracts", fields: [tenant_id], references: [id])
+  start_date   DateTime
+  end_date     DateTime
+  rent_amount  Float
+  currency     String   @default("ARS")
+  deposit      Float?
+  status       String   @default("vigente")
+  created_at   DateTime @default(now())
+  payments     Payment[]
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  contract_id String
+  contract    Contract @relation(fields: [contract_id], references: [id])
+  amount      Float
+  due_date    DateTime
+  paid_at     DateTime?
+  status      String   @default("pendiente") // pendiente, pagado, vencido
+  method      String?
+  receipt_url String?
+  created_at  DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  user_id    String?
+  user       User?    @relation(fields: [user_id], references: [id])
+  action     String
+  entity     String?
+  entity_id  String?
+  ip         String?
+  user_agent String?
+  metadata   String? // JSON
+  created_at DateTime @default(now())
+}
+
+model TwoFactorCode {
+  id         String   @id @default(cuid())
+  email_hash String
+  code_hash  String
+  purpose    String // login, register, reset
+  expires_at DateTime
+  used       Boolean  @default(false)
+  created_at DateTime @default(now())
+}
