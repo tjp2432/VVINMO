@@ -8,7 +8,9 @@ export default function PropertyDetail(){
   const photos = data ? getPhotos(id) : [];
   const [idx, setIdx] = useState(0);
 
-  useEffect(()=>{ setIdx(0); window.scrollTo(0,0); },[id]);
+  // key={id}: al cambiar de propiedad el carrusel remonta y el indice de foto
+  // vuelve a 0 sin necesidad de setear estado dentro de un effect.
+  useEffect(()=>{ window.scrollTo(0,0); },[id]);
 
   const prev = useCallback(()=> setIdx(i => (i - 1 + photos.length) % photos.length),[photos.length]);
   const next = useCallback(()=> setIdx(i => (i + 1) % photos.length),[photos.length]);

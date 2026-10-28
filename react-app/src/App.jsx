@@ -1,6 +1,7 @@
 import { useState, memo, lazy, Suspense, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
-import { AuthProvider, useAuth } from './contexts/AuthContext.jsx'
+import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthProvider.jsx'
+import { useAuth } from './contexts/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import PropertyCard from './components/PropertyCard.jsx'
 import { DESTACADAS } from './data/propiedades.js'
@@ -10,7 +11,6 @@ const Verify2FA = lazy(()=> import('./pages/Verify2FA.jsx'))
 const Privacidad = lazy(()=> import('./pages/Privacidad.jsx'))
 const PropertyDetail = lazy(()=> import('./pages/PropertyDetail.jsx'))
 const Propiedades = lazy(()=> import('./pages/Propiedades.jsx'))
-const Dash = lazy(()=> import('./pages/Dashboard.jsx'))
 
 
 const Navbar = memo(function Navbar(){
@@ -101,10 +101,6 @@ const Home = memo(function Home(){
   )
 })
 
-function AdminW(){ const { AdminDashboard } = Dash; return <AdminDashboard /> }
-function PropW(){ const { PropDashboard } = Dash; return <PropDashboard /> }
-function InqW(){ const { InquilinoDashboard } = Dash; return <InquilinoDashboard /> }
-
 export default function App(){
   return (
     <BrowserRouter>
@@ -115,7 +111,7 @@ export default function App(){
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/propiedades" element={<Propiedades />} />
-            <Route path="/propiedad/:id" element={<PropertyDetail />} />
+            <Route path="/propiedad/:id" element={<PropertyDetailRoute />} />
             <Route path="/login" element={<Login />} />
             <Route path="/verify-2fa" element={<Verify2FA />} />
             <Route path="/privacidad" element={<Privacidad />} />
@@ -127,6 +123,10 @@ export default function App(){
       </AuthProvider>
     </BrowserRouter>
   )
+}
+function PropertyDetailRoute(){
+  const { id } = useParams()
+  return <PropertyDetail key={id} />
 }
 function DashWrapper({ which }){
   const [Comp,setComp]=useState(null);

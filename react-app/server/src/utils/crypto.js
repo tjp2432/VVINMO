@@ -2,7 +2,6 @@ import crypto from 'crypto';
 
 const ALGO = 'aes-256-gcm';
 const IV_LEN = 12;
-const TAG_LEN = 16;
 
 function getKey() {
   const hex = process.env.DATA_ENCRYPTION_KEY;
@@ -23,7 +22,7 @@ export function encrypt(plaintext) {
 
 export function decrypt(payload) {
   if (!payload) return null;
-  const [kid, ivB64, tagB64, dataB64] = payload.split(':');
+  const [, ivB64, tagB64, dataB64] = payload.split(':');
   if (!ivB64 || !tagB64 || !dataB64) throw new Error('payload encriptado inválido');
   const iv = Buffer.from(ivB64, 'base64');
   const tag = Buffer.from(tagB64, 'base64');

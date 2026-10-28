@@ -1,8 +1,6 @@
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useEffect, useState } from 'react';
-import { api } from '../lib/api.js';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { api, API } from '../lib/api.js';
 
 function DashboardLayout({ title, children }){
   const { user, logout } = useAuth();
@@ -34,7 +32,12 @@ export function AdminDashboard(){
       setProps(p); setUsers(u); setContracts(c);
     }catch(e){ setMsg(e.message); }
   }
-  useEffect(()=>{ loadAll(); },[]);
+  // Se difiere con setTimeout: cargar y setear estado en el primer render
+  // provoca cascada de renders (react/set-state-in-effect).
+  useEffect(()=>{
+    const t = setTimeout(loadAll, 0);
+    return ()=> clearTimeout(t);
+  },[]);
 
   const propietarios = users.filter(u=>u.role==='PROPIETARIO');
   const inquilinos = users.filter(u=>u.role==='INQUILINO');

@@ -178,7 +178,7 @@ router.post('/refresh', async (req, res) => {
     const access_token = signAccessToken(user);
     res.cookie('access_token', access_token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
     return res.json({ message: 'Token renovado' });
-  } catch (e) {
+  } catch {
     return res.status(401).json({ error: 'Refresh inválido' });
   }
 });

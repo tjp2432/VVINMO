@@ -23,7 +23,7 @@ export function requireAuth(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET, { issuer: 'vvinmook' });
     req.user = payload;
     next();
-  } catch (e) {
+  } catch {
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 }

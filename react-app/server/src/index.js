@@ -8,11 +8,9 @@ import authRoutes from './routes/auth.js';
 import propertyRoutes from './routes/properties.js';
 import adminRoutes from './routes/admin.js';
 import contractRoutes from './routes/contracts.js';
-import { PrismaClient } from '@prisma/client';
 import path from 'path';
 
 const app = express();
-const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 // Seguridad - Helmet + CSP
@@ -43,8 +41,8 @@ app.use('/api/contracts', contractRoutes);
 
 // 404
 app.use((req,res)=> res.status(404).json({ error: 'No encontrado' }));
-// Error handler
-app.use((err,req,res,next)=>{
+// Error handler (Express identifica el handler por la cantidad de argumentos: debe ser 4)
+app.use((err,_req,res,_next)=>{
   console.error(err);
   res.status(500).json({ error: 'Error interno', detail: err.message });
 });

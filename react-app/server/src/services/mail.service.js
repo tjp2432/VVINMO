@@ -1,8 +1,6 @@
 // Servicio de mail mock para 2FA - En producción reemplazar por Nodemailer + SMTP g2khosting / Resend / Brevo
 // Cumple Ley 25.326: no exponer PII en logs, solo email_hash
 
-const codesInMemory = new Map(); // email_hash -> { code, expires }
-
 export async function send2FACode({ email, code, purpose }) {
   // En dev: log en consola (simula envío)
   // En prod: integrar con SMTP

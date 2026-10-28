@@ -66,7 +66,7 @@ router.post('/:id/payments', requireAuth, upload.single('receipt'), async (req,r
   if (!contract) return res.status(404).json({error:'Contrato no existe'});
   if (req.user.role!=='ADMIN' && contract.owner_id!==req.user.sub && contract.tenant_id!==req.user.sub) return res.status(403).json({error:'No autorizado'});
 
-  const { amount, due_date, paid_at, status='pagado', method, notes } = req.body;
+  const { amount, due_date, paid_at, status='pagado', method } = req.body;
   if (!amount || !due_date) return res.status(400).json({error:'amount y due_date requeridos'});
 
   // Si se subió archivo, el path ya es local. En prod se encripta: aquí simulamos guardando path
