@@ -46,17 +46,17 @@
       position: fixed;
       top: 0;
       width: 100%;
-      background: rgba(22,18,24,0.88);
+      background: rgba(62,62,68,0.88);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      padding: 0.85rem 5%;
+      padding: 0.5rem 1.5%;
       box-shadow: none;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       z-index: 1000;
     }
 
     .nav-container {
-      max-width: 1200px;
+      max-width: 1600px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -79,7 +79,7 @@
 
     .nav-links a {
       font-weight: 500;
-      color: #d6d6d6;
+      color: #ffffff;
       transition: color 0.3s;
     }
 
@@ -447,16 +447,9 @@
   <!-- Navbar -->
   <nav>
     <div class="nav-container">
-      <div class="logo" style="gap:10px; margin-left:-14px;">
-        <img src="./LOGO HEADER.png" alt="AV" style="height:46px; width:auto; display:block; transform: scale(1.5); transform-origin: left center; position: relative; top: 3px;">
-        <div style="display:flex; flex-direction:column; line-height:1; justify-content:center; align-items:center; text-align:center; margin-left:10px;">
-          <span style="font-family:Montserrat,Inter,sans-serif; font-weight:700; font-size:0.62rem; letter-spacing:3px; color:#8a8a8a; line-height:1; text-align:center;">INMOBILIΛRIΛ-INTEGRΛL</span>
-          <div style="display:flex; gap:6px; margin-top:3px; line-height:1; justify-content:center; white-space:nowrap; align-items:center;">
-            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:20.5px; letter-spacing:1.9px; color:#dd0074; white-space:nowrap; flex-shrink:0; line-height:1; display:inline-block; vertical-align:middle;">VERONICΛ</span>
-            <span style="font-family:Montserrat,Inter,sans-serif; font-weight:900; font-size:20.5px; letter-spacing:1.9px; color:#8e2158; white-space:nowrap; flex-shrink:0; line-height:1; display:inline-block; vertical-align:middle;">VILLΛFΛÑE</span>
-          </div>
-        </div>
-      </div>
+      <a href="#" class="logo" style="gap:10px; margin-left:-14px; cursor:pointer;">
+        <img src="./react-app/public/pdf-logos/logo_horizontal_transp.png" alt="Veronica Villafañe - Inmobiliaria Integral" style="height:52px; width:auto; display:block; position: relative; top: 2px;">
+      </a>
       <button class="hamburger" id="hamburger" aria-label="Menú">☰</button>
       <ul class="nav-links" id="navLinks">
         <li><a href="#propiedades">Propiedades</a></li>
@@ -467,14 +460,13 @@
   </nav>
 
   <div id="navOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.38); z-index:1240;"></div>
-  <!-- Hero -->
+  <!-- Hero - unificado con header -->
   <header class="hero">
     <div>
-      <div class="hero-logo-glass">
-        <img src="./LOGO VV transp_backup.png" alt="Verónica Villafañe - Negocios Inmobiliarios">
+      <div class="hero-logo-glass" style="flex-direction:column; gap:0px;">
+        <img src="./react-app/public/pdf-logos/logo_AV_grande_transp.png" alt="Veronica Villafañe - Inmobiliaria Integral" style="max-width:82%; max-height:82%; width:auto; height:auto; object-fit:contain; display:block;">
       </div>
-      <p>Tu inmobiliaria de confianza con propiedades rodeadas de naturaleza</p>
-      <a href="#propiedades" class="btn">Ver propiedades</a>
+      <p>Tu inmobiliaria de confianza, conectamos personas con sus sueños. Encontranos en Virrey del Pino 2829, CABA. Lunes a Viernes de 10:00 hs a 19:00 hs.</p>
     </div>
   </header>
 
