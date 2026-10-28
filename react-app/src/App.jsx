@@ -57,7 +57,7 @@ const Home = memo(function Home(){
       </header>
       <section className="section" id="inicio" style={{ textAlign: 'center', position:'relative', top:-16 }}>
         <h2 className="section-title">¿Quienes somos?</h2>
-        <p style={{ maxWidth: 780, margin: '0 auto', fontSize: '1.1rem' }}>Somos una inmobiliaria comprometida con encontrar el espacio que realmente necesitas. Con años de experiencia, servicio cercano y transparente.</p>
+        <p style={{ maxWidth: 780, margin: '0 auto', fontSize: '1.1rem' }}>Somos una inmobiliaria comprometida con encontrar el espacio que realmente necesitas. Con años de experiencia en el mercado, ofrecemos un servicio cercano, profesional y transparente. Ya sea que busques comprar tu primera vivienda, invertir en propiedades o alquilar un espacio, estamos aquí para ayudarte en cada paso del proceso.</p>
       </section>
       <section className="section" id="propiedades">
         <h2 className="section-title">Propiedades destacadas</h2>
@@ -70,7 +70,8 @@ const Home = memo(function Home(){
       </section>
       <section className="section" id="nosotros" style={{ textAlign: 'center' }}>
         <h2 className="section-title">Nuestra Historia</h2>
-        <p style={{ maxWidth: 780, margin: '0 auto' }}>Fundada para ofrecer un servicio inmobiliario de confianza. Transformamos metas en realidad con honestidad y resultados.</p>
+        <p style={{ maxWidth: 780, margin: '0 auto' }}>Fundada con el objetivo de ofrecer un servicio inmobiliario de confianza. En Verónica Villafañe, creemos que comprar o vender una propiedad es una de las decisiones más importantes en la vida de una persona, por eso nos esforzamos en construir relaciones duraderas basadas en la honestidad y los resultados.</p>
+        <p style={{ maxWidth: 780, margin: '1rem auto 0' }}>Nuestro equipo de profesionales está capacitado para asesorarte con el mejor conocimiento del mercado local, garantizando transparencia en cada transacción.</p>
       </section>
       <section id="contacto">
         <div className="contact-glass">
@@ -80,7 +81,7 @@ const Home = memo(function Home(){
               <div className="form-group"><label>Nombre completo</label><input placeholder="Tu nombre" required /></div>
               <div className="form-group"><label>Email</label><input type="email" placeholder="tu@email.com" required /></div>
               <div className="form-group"><label>Teléfono</label><input placeholder="+54 9 11 1234-5678" /></div>
-              <div className="form-group"><label>Mensaje</label><textarea rows={4} placeholder="Cuéntanos qué propiedad te interesa"></textarea></div>
+              <div className="form-group"><label>Mensaje</label><textarea rows={4} placeholder="Cuéntanos qué propiedad te interesa o cómo podemos ayudarte"></textarea></div>
               <button type="submit" className="btn">Enviar mensaje</button>
             </form>
           </div>
@@ -89,9 +90,9 @@ const Home = memo(function Home(){
       <footer>
         <div className="footer-container">
           <div className="footer-grid">
-            <div className="footer-brand"><h3>Verónica Villafañe</h3><p>Tu aliado en el mercado inmobiliario.</p><p style={{fontSize:12,opacity:0.6,marginTop:8}}><Link to="/privacidad" style={{color:'#ff8ac6'}}>Política de Privacidad Ley 25.326</Link> · Base AAIP · Datos encriptados AES-256</p></div>
-            <div className="footer-links"><h4>Enlaces</h4><ul><li><Link to="/">Inicio</Link></li><li><Link to="/privacidad">Privacidad</Link></li></ul></div>
-            <div className="footer-contact"><h4>Contacto</h4><ul><li>📞 +54 9 11 6467-1905</li><li>✉️ info@veronicavillafane.com</li><li>📍 Virrey del Pino 2829, CABA</li></ul></div>
+            <div className="footer-brand"><h3>Verónica Villafañe</h3><p>Tu aliado en el mercado inmobiliario. Con dedicación y profesionalismo, transformamos tus metas en realidad.</p><p style={{fontSize:12,opacity:0.6,marginTop:8}}><Link to="/privacidad" style={{color:'#ff8ac6'}}>Política de Privacidad Ley 25.326</Link> · Base AAIP · Datos encriptados AES-256</p></div>
+            <div className="footer-links"><h4>Enlaces</h4><ul><li><Link to="/">Inicio</Link></li><li><Link to="/propiedades">Propiedades</Link></li><li><Link to="/#nosotros">Nosotros</Link></li><li><Link to="/#contacto">Contacto</Link></li><li><Link to="/privacidad">Privacidad</Link></li></ul></div>
+            <div className="footer-contact"><h4>Contacto</h4><ul><li>📞 +54 9 11 6467-1905</li><li>✉️ info@veronicavillafane.com</li><li>📍 Virrey del Pino 2829, CABA, Buenos Aires, Argentina.</li></ul></div>
           </div>
           <div className="footer-bottom"><p>© 2026 Verónica Villafañe - Inmobiliaria Integral. Todos los derechos reservados.</p></div>
         </div>
