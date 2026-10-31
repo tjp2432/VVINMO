@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { registerSchema, loginSchema, verify2FASchema } from '../utils/validators.js';
 import { encrypt, sha256, hashTramite, generateCode } from '../utils/crypto.js';
 import { verifyRenaper } from '../services/renaper.service.js';
-import { send2FACode } from '../services/mail.service.js';
+import { send2FACode, mailConfigurado } from '../services/mail.service.js';
 import { signAccessToken, signRefreshToken, requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -161,11 +161,19 @@ router.post('/login', async (req, res) => {
     await prisma.twoFactorCode.create({
       data: { email_hash, code_hash, purpose: 'login', expires_at: new Date(Date.now() + 10 * 60 * 1000) },
     });
-    await send2FACode({ email, code, purpose: 'login' });
+    try {
+      await send2FACode({ email, code, purpose: 'login' });
+    } catch (mailErr) {
+      // No exponer detalles internos del servidor de correo al cliente.
+      console.error('Error enviando 2FA:', mailErr.code || mailErr.message);
+      return res.status(503).json({ error: 'No se pudo enviar el código de acceso. Revisá la configuración de mail del servidor.' });
+    }
     await prisma.auditLog.create({ data: { user_id: user.id, action: 'LOGIN_2FA_SENT', entity: 'User' } });
 
-    const isDev = process.env.NODE_ENV !== 'production';
-    return res.json({ message: 'Código 2FA enviado a tu mail/SMS', need_2fa: true, email, ...(isDev ? { _dev_code: code } : {}) });
+    // El código solo se muestra en la respuesta cuando el mail es mock.
+    // Con SMTP configurado viaja únicamente por correo (aunque NODE_ENV no sea production).
+    const mostrarCodigo = process.env.NODE_ENV !== 'production' && !mailConfigurado();
+    return res.json({ message: 'Código 2FA enviado a tu mail', need_2fa: true, email, ...(mostrarCodigo ? { _dev_code: code } : {}) });
   } catch (e) {
     if (e.name === 'ZodError') return res.status(400).json({ error: 'Validación', details: e.errors });
     console.error(e);

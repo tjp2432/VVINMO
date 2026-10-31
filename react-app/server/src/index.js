@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.js';
 import propertyRoutes from './routes/properties.js';
 import adminRoutes from './routes/admin.js';
 import contractRoutes from './routes/contracts.js';
+import { mailConfigurado } from './services/mail.service.js';
 import path from 'path';
 
 const app = express();
@@ -33,7 +34,7 @@ app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/register', loginLimiter);
 
 // Rutas
-app.get('/api/health', (req,res)=> res.json({ ok:true, env: process.env.NODE_ENV, renaper: process.env.RENAPER_PROVIDER, ts: new Date().toISOString() }));
+app.get('/api/health', (req,res)=> res.json({ ok:true, env: process.env.NODE_ENV, renaper: process.env.RENAPER_PROVIDER, mail: mailConfigurado() ? 'smtp' : 'mock', ts: new Date().toISOString() }));
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/admin', adminRoutes);

@@ -55,7 +55,27 @@ Mock RENAPER: `server/src/services/renaper.service.js:1` - si DNI termina en 0 o
 - Headers: helmet, cors credentials, rateLimit 8/min en login/register, cookies httpOnly Secure SameSite=Strict
 - Secretos: nunca loguear PII en claro, solo hashes (sha256 email/dni)
 
+## Mail de 2FA (SMTP)
+
+El código de 6 dígitos sale por mail. Se configura en `server/.env`:
+
+```
+SMTP_HOST=mail.tudominio.com
+SMTP_PORT=587
+SMTP_USER=info@tudominio.com
+SMTP_PASS=la-clave-del-mail
+SMTP_FROM=Verónica Villafañe <info@tudominio.com>
+```
+
+- `SMTP_PORT=587` usa STARTTLS; `465` usa SSL directo.
+- Los datos los entrega el hosting junto con el dominio.
+- **Sin esas variables** el código se imprime en la consola (modo DEV) y el
+  frontend lo muestra en pantalla; con SMTP configurado ya no se muestra.
+- `/api/health` informa `mail: "smtp"` o `"mock"`.
+- Si el servidor de correo falla, el login responde 503 con un mensaje genérico
+  (no filtra detalles internos).
+
 ## Próximos pasos sugeridos
-- Integrar SMTP real (Brevo/Resend/SMTP g2k) en `mail.service.js:1` + SMS Twilio para 2FA
+- Cargar las credenciales SMTP del hosting cuando estén disponibles
 - Panel ADMIN para aprobar usuarios, asignar propiedades a propietarios, crear contratos
 - Subida de docs con encriptación
