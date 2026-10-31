@@ -9,6 +9,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "seed": "node prisma/seed.js",
+    "crear:usuario": "node prisma/crear-usuario.js",
     "importar:propiedades": "node prisma/importar-propiedades.js"
   },
   "dependencies": {
