@@ -45,6 +45,20 @@ const Navbar = memo(function Navbar(){
 })
 
 const Home = memo(function Home(){
+  // El formulario no manda nada a ningun servidor: arma el mensaje y abre
+  // WhatsApp con el texto ya cargado (+54 9 11 6467-1905).
+  function contactoWhatsApp(e){
+    e.preventDefault()
+    const fd = new FormData(e.target)
+    const leer = n => (fd.get(n) || '').toString().trim()
+    const lineas = ['Hola Verónica, te escribo desde tu web.']
+    const nombre = leer('nombre'), email = leer('email'), tel = leer('telefono'), mensaje = leer('mensaje')
+    if (nombre) lineas.push(`Nombre: ${nombre}`)
+    if (email)  lineas.push(`Email: ${email}`)
+    if (tel)    lineas.push(`Teléfono: ${tel}`)
+    if (mensaje) lineas.push('', mensaje)
+    window.open(`https://wa.me/5491164671905?text=${encodeURIComponent(lineas.join('\n'))}`, '_blank', 'noopener,noreferrer')
+  }
   return (
     <>
       <header className="hero">
@@ -77,12 +91,13 @@ const Home = memo(function Home(){
         <div className="contact-glass">
           <div className="contact-form">
             <h2 className="section-title">Contactanos</h2>
-            <form onSubmit={e => e.preventDefault()}>
-              <div className="form-group"><label>Nombre completo</label><input placeholder="Tu nombre" required /></div>
-              <div className="form-group"><label>Email</label><input type="email" placeholder="tu@email.com" required /></div>
-              <div className="form-group"><label>Teléfono</label><input placeholder="+54 9 11 1234-5678" /></div>
-              <div className="form-group"><label>Mensaje</label><textarea rows={4} placeholder="Cuéntanos qué propiedad te interesa o cómo podemos ayudarte"></textarea></div>
-              <button type="submit" className="btn">Enviar mensaje</button>
+            <p style={{fontSize:14,opacity:0.75,marginTop:-6,marginBottom:14}}>Al enviar se abre WhatsApp con tu mensaje ya escrito. También podés escribirnos directo al <a href="https://wa.me/5491164671905" target="_blank" rel="noreferrer" style={{color:'#c0006e',fontWeight:600}}>+54 9 11 6467-1905</a>.</p>
+            <form onSubmit={contactoWhatsApp}>
+              <div className="form-group"><label htmlFor="c-nombre">Nombre completo</label><input id="c-nombre" name="nombre" placeholder="Tu nombre" required /></div>
+              <div className="form-group"><label htmlFor="c-email">Email</label><input id="c-email" name="email" type="email" placeholder="tu@email.com" required /></div>
+              <div className="form-group"><label htmlFor="c-tel">Teléfono</label><input id="c-tel" name="telefono" placeholder="+54 9 11 1234-5678" /></div>
+              <div className="form-group"><label htmlFor="c-msg">Mensaje</label><textarea id="c-msg" name="mensaje" rows={4} placeholder="Cuéntanos qué propiedad te interesa o cómo podemos ayudarte"></textarea></div>
+              <button type="submit" className="btn">Enviar por WhatsApp</button>
             </form>
           </div>
         </div>

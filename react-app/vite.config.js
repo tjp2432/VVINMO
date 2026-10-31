@@ -5,6 +5,10 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   server: {
+    // Escucha en todas las interfaces para poder verla desde otra máquina
+    // de la red local (http://<IP-de-esta-maquina>:5173).
+    host: true,
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:4000',
