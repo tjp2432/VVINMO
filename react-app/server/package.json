@@ -10,7 +10,8 @@
     "prisma:push": "prisma db push",
     "seed": "node prisma/seed.js",
     "crear:usuario": "node prisma/crear-usuario.js",
-    "importar:propiedades": "node prisma/importar-propiedades.js"
+    "importar:propiedades": "node prisma/importar-propiedades.js",
+    "importar:fotos": "node prisma/importar-fotos-zonaprop.js"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

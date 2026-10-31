@@ -36,3 +36,21 @@ node src/index.js               # API en http://localhost:4000
 
 Las fotos subidas desde el panel se guardan en `server/uploads/properties/` y se
 sirven en `/uploads/...` (en desarrollo Vite hace proxy de esa ruta).
+
+### Fotos desde ZonaProp
+
+Las fotos de los avisos publicados se pueden traer automaticamente:
+
+```bash
+cd server
+npm run importar:fotos              # baja todas las fotos y actualiza la base
+npm run importar:fotos -- --dry-run # solo informa, no escribe nada
+```
+
+- Recorre la pagina de la inmobiliaria en ZonaProp, entra a cada aviso y baja
+  **todas** sus fotos (hasta 1600x1200) a `public/propiedades/<id-del-aviso>/`.
+- Asocia cada aviso con la propiedad cuyo `external_link` termina en ese ID.
+- Vuelve a correrlo cuando quieras: no baja de nuevo las fotos que ya estan.
+- Al final lista las propiedades que ya no estan publicadas en ZonaProp y los
+  avisos publicados que todavia no estan en el catalogo.
+- Necesita `curl` (viene en Windows 10+ y en Linux/macOS).
