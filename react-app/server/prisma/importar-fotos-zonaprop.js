@@ -2,8 +2,9 @@
 // en ZonaProp y las guarda en el catálogo local (react-app/public/propiedades/<id>).
 //
 // Uso (desde react-app/server):
-//   node prisma/importar-fotos-zonaprop.js            -> descarga y actualiza la base
-//   node prisma/importar-fotos-zonaprop.js --dry-run  -> solo informa, no escribe nada
+//   node prisma/importar-fotos-zonaprop.js             -> actualiza las propiedades existentes
+//   node prisma/importar-fotos-zonaprop.js --agregar   -> además crea (como borrador) los avisos que faltan
+//   node prisma/importar-fotos-zonaprop.js --dry-run   -> solo informa, no escribe nada
 //   node prisma/importar-fotos-zonaprop.js --tamano 1600x1200
 //
 // ZonaProp no tiene API pública: el listado y las fichas se piden como navegador
@@ -11,7 +12,8 @@
 //
 // Cada propiedad se asocia por el ID del aviso que ya está guardado en
 // external_link (…-59880962.html -> 59880962). Los avisos que no están en el
-// catálogo se informan al final para decidir si se agregan.
+// catálogo se informan al final; con --agregar se crean como borrador con los
+// datos de la ficha para revisarlos en /admin antes de publicarlos.
 import 'dotenv/config';
 import { execFileSync } from 'child_process';
 import { PrismaClient } from '@prisma/client';
@@ -30,6 +32,7 @@ const UA =
 const TAMANOS = ['1600x1200', '1200x900', '720x532'];
 
 const DRY = process.argv.includes('--dry-run');
+const AGREGAR = process.argv.includes('--agregar');
 const argTamano = (() => {
   const i = process.argv.indexOf('--tamano');
   return i !== -1 ? process.argv[i + 1] : null;
@@ -38,7 +41,7 @@ const argTamano = (() => {
 const destino = path.resolve(process.cwd(), '..', 'public', 'propiedades');
 
 // ---------------------------------------------------------------------------
-// utilidades
+// Descarga de HTML y fotos
 // ---------------------------------------------------------------------------
 function bajarHtml(url) {
   // curl imita mejor a un navegador que fetch (ZonaProp responde 403 a fetch).
@@ -75,28 +78,6 @@ function fotosDelHtml(html) {
   return fotos;
 }
 
-function datosDeFicha(html) {
-  const datos = {};
-  const bloques = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
-  for (const b of bloques) {
-    try {
-      const j = JSON.parse(b[1]);
-      if (!j['@type'] || ['WebSite', 'Organization'].includes(j['@type'])) continue;
-      datos.title = j.name || datos.title;
-      datos.description = j.description || datos.description;
-      const a = j.address || {};
-      datos.address = [a.streetAddress, a.addressLocality].filter(Boolean).join(', ') || datos.address;
-      const o = j.offers || {};
-      datos.price = o.price ? String(o.price) : datos.price;
-      datos.currency = o.priceCurrency || datos.currency;
-      datos.property_type = j['@type'] || datos.property_type;
-    } catch {
-      /* bloque que no es JSON válido: se ignora */
-    }
-  }
-  return datos;
-}
-
 async function bajarFoto(foto, archivo) {
   const variantes = argTamano ? [argTamano] : TAMANOS;
   for (const t of variantes) {
@@ -115,15 +96,190 @@ async function bajarFoto(foto, archivo) {
   return null;
 }
 
-function idDePropiedad(externalLink) {
-  return externalLink ? idDeUrl(externalLink) : null;
+// Guarda todas las fotos del aviso y devuelve las rutas públicas.
+async function guardarFotos(zp, fotos) {
+  const carpeta = path.join(destino, zp);
+  const rutas = [];
+  if (!DRY) fs.mkdirSync(carpeta, { recursive: true });
+
+  for (const [i, foto] of fotos.entries()) {
+    const nombre = `${String(i + 1).padStart(2, '0')}.jpg`;
+    const archivo = path.join(carpeta, nombre);
+    rutas.push(`/propiedades/${zp}/${nombre}`);
+
+    if (DRY) continue;
+    if (fs.existsSync(archivo) && fs.statSync(archivo).size > 2000) continue;
+    await bajarFoto(foto, archivo);
+  }
+
+  if (!DRY) {
+    // Borrar sobrantes de importaciones anteriores (01.jpg … NN.jpg)
+    for (const f of fs.readdirSync(carpeta)) {
+      const m = f.match(/^(\d+)\.jpg$/);
+      if (m && Number(m[1]) > fotos.length) fs.rmSync(path.join(carpeta, f), { force: true });
+    }
+  }
+  return { rutas, carpeta };
+}
+
+// ---------------------------------------------------------------------------
+// Lectura de los datos de la ficha
+// ---------------------------------------------------------------------------
+const ENTIDADES = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', sup2: '²', sup3: '³',
+  aacute: 'á', eacute: 'é', iacute: 'í', oacute: 'ó', uacute: 'ú', ntilde: 'ñ',
+  Aacute: 'Á', Eacute: 'É', Iacute: 'Í', Oacute: 'Ó', Uacute: 'Ú', Ntilde: 'Ñ',
+  ordm: 'º', deg: '°', middot: '·', raquo: '»', laquo: '«', hellip: '…',
+};
+
+function decodificar(texto = '') {
+  return texto
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z][a-z0-9]*);/gi, (m, n) => ENTIDADES[n] ?? m);
+}
+
+function textoPlano(html = '') {
+  return decodificar(
+    String(html)
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|div|li|h\d)>/gi, '\n')
+      .replace(/<[^>]+>/g, ''),
+  )
+    .replace(/\r/g, '')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+const TIPOS = {
+  departamento: 'departamento',
+  casa: 'casa',
+  ph: 'ph',
+  oficina: 'oficina',
+  local: 'local',
+  terreno: 'terreno',
+  cochera: 'cochera',
+  galpón: 'local',
+  galpon: 'local',
+  bodega: 'local',
+  depósito: 'local',
+  deposito: 'local',
+};
+
+function numero(valor) {
+  if (valor === undefined || valor === null) return null;
+  const n = Number(String(valor).replace(/[^\d.]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+// Los precios vienen con puntos de miles ("1.800.000"): se descarta todo lo
+// que no sea dígito antes de convertirlos.
+function monto(valor) {
+  if (valor === undefined || valor === null) return null;
+  const n = Number(String(valor).replace(/\D/g, ''));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function conMiles(n) {
+  return n === null || n === undefined ? null : new Intl.NumberFormat('es-AR').format(n);
+}
+
+function datosDeAviso(html, url, zp) {
+  const uno = (re) => {
+    const m = html.match(re);
+    return m ? m[1] : '';
+  };
+
+  // Bloque de datos que ZonaProp deja en la ficha (objeto JS con comillas simples)
+  let main = {};
+  let general = {};
+  try { main = JSON.parse(uno(/'mainFeatures'\s*:\s*(\{[\s\S]*?\}),\s*\n/)); } catch { /* sin medidas */ }
+  try { general = JSON.parse(uno(/'generalFeatures'\s*:\s*(\{[\s\S]*?\}),\s*\n/)); } catch { /* sin características */ }
+
+  const medida = (etiqueta) => {
+    const f = Object.values(main).find((x) => (x.label || '').startsWith(etiqueta));
+    return f ? numero(f.value) : null;
+  };
+
+  let direccion = '';
+  try {
+    const bloque = uno(/'address'\s*:\s*(\{[^\n]*?\})/);
+    if (bloque) direccion = JSON.parse(bloque).name || '';
+  } catch { /* dirección no visible */ }
+
+  const barrio = uno(/'neighborhood'\s*:\s*'([^']*)'/) || uno(/"name":"([^"]+)","label":"BARRIO"/);
+
+  const op = (uno(/'operationType'\s*:\s*'([^']*)'/) || '').toLowerCase();
+  const tipoZona = uno(/'propertyType'\s*:\s*'([^']*)'/).toLowerCase();
+
+  const precioCrudo = uno(/'price'\s*:\s*'([^']*)'/);
+  const esUsd = /usd|u\$s/i.test(precioCrudo);
+  const montoPrecio = monto(precioCrudo.replace(/usd/gi, ''));
+
+  const expensas = monto(uno(/'expenses'\s*:\s*'([^']*)'/));
+
+  const titulo =
+    textoPlano(uno(/'postingTitle'\s*:\s*"([^"]*)"/)) ||
+    textoPlano(uno(/"name"\s*:\s*"([^"]+)"/)).replace(/\s*-\s*Zonaprop$/i, '');
+
+  let descripcion = '';
+  try {
+    const crudo = uno(/'description'\s*:\s*"([\s\S]*?)"\s*,\s*\n/);
+    if (crudo) descripcion = textoPlano(JSON.parse(`"${crudo}"`));
+  } catch { /* sin descripción */ }
+
+  // Características: se descartan las meramente edilicias y se agregan las
+  // cualidades de la ficha (disposición, luminosidad, orientación, antigüedad).
+  const features = [];
+  const agregar = (txt) => {
+    const t = textoPlano(txt);
+    if (t && !features.includes(t) && features.length < 14) features.push(t);
+  };
+  for (const [grupo, items] of Object.entries(general)) {
+    if (/características generales/i.test(grupo)) continue;
+    for (const it of Object.values(items)) {
+      if (it.value) agregar(`${it.label}: ${it.value}`);
+      else agregar(it.label);
+    }
+  }
+  for (const f of Object.values(main)) {
+    if (['Disposición', 'Luminosidad', 'Orientación', 'antigüedad'].includes(f.label)) {
+      if (f.label === 'antigüedad') agregar(`${f.value} años de antigüedad`);
+      else agregar(f.label === 'Orientación' ? `Orientación ${f.value}` : f.value);
+    }
+  }
+
+  return {
+    title: titulo || `Aviso ${zp}`,
+    description: descripcion || null,
+    address: direccion || 'Consultar dirección',
+    neighborhood: barrio || null,
+    city: 'CABA',
+    price: montoPrecio === null ? 'Consultar' : conMiles(montoPrecio),
+    currency: esUsd ? 'USD' : 'ARS',
+    expenses: expensas === null ? null : `$ ${conMiles(expensas)}`,
+    type: op === 'venta' ? 'venta' : 'alquiler',
+    property_type: TIPOS[tipoZona] || 'departamento',
+    status: 'disponible',
+    rooms: medida('amb.'),
+    bedrooms: medida('dorm.'),
+    bathrooms: medida('baño'),
+    garage: medida('coch.'),
+    area_m2: medida('tot.'),
+    area_covered_m2: medida('cub.'),
+    features: JSON.stringify(features),
+    external_link: url,
+    featured: false,
+    published: false,
+  };
 }
 
 // ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
 async function main() {
-  console.log(`\n🖼  Importando fotos desde ZonaProp${DRY ? '  (simulación: no escribe)' : ''}\n`);
+  console.log(`\n🖼  Importando fotos desde ZonaProp${DRY ? '  (simulación: no escribe)' : ''}${AGREGAR ? '  (+ alta de avisos nuevos)' : ''}\n`);
   console.log('  Listado de la inmobiliaria…');
   const htmlListado = bajarHtml(AGENCIA);
   const links = linksDelListado(htmlListado);
@@ -136,93 +292,83 @@ async function main() {
   });
   const porAviso = new Map();
   for (const p of propiedades) {
-    const zp = idDePropiedad(p.external_link);
+    const zp = p.external_link ? idDeUrl(p.external_link) : null;
     if (zp) porAviso.set(zp, p);
   }
 
-  let actualizadas = 0;
-  let fotosBajadas = 0;
+  const resumen = { actualizadas: 0, creadas: 0, fotos: 0, errores: 0 };
   const sinCatalogo = [];
   const sinFotos = [];
-  let errores = 0;
 
   for (const [n, link] of links.entries()) {
     const zp = idDeUrl(link);
-    const prop = porAviso.get(zp);
+    const url = 'https://www.zonaprop.com.ar' + link;
     const prefijo = `  [${String(n + 1).padStart(2)}/${links.length}] ${zp}`;
 
     let html;
     try {
-      html = bajarHtml('https://www.zonaprop.com.ar' + link);
+      html = bajarHtml(url);
     } catch {
-      errores++;
+      resumen.errores++;
       console.log(`${prefijo}  ✗ no se pudo abrir el aviso`);
       continue;
     }
 
     const fotos = fotosDelHtml(html);
-    if (!prop) {
-      sinCatalogo.push({ zp, fotos: fotos.length, ...datosDeFicha(html) });
+    const prop = porAviso.get(zp);
+
+    if (!prop && !AGREGAR) {
+      sinCatalogo.push({ zp, fotos: fotos.length, ...datosDeAviso(html, url, zp) });
       console.log(`${prefijo}  — no está en el catálogo (${fotos.length} fotos)`);
       continue;
     }
+
     if (!fotos.length) {
-      sinFotos.push(prop);
-      console.log(`${prefijo}  ${prop.title} → sin fotos en el aviso`);
+      sinFotos.push(prop || { title: `aviso ${zp}` });
+      console.log(`${prefijo}  ${prop ? prop.title : 'aviso nuevo'} → sin fotos en el aviso`);
       continue;
     }
 
-    const carpeta = path.join(destino, zp);
-    const rutas = [];
-
-    if (!DRY) fs.mkdirSync(carpeta, { recursive: true });
-
-    for (const [i, foto] of fotos.entries()) {
-      const nombre = `${String(i + 1).padStart(2, '0')}.jpg`;
-      const archivo = path.join(carpeta, nombre);
-      rutas.push(`/propiedades/${zp}/${nombre}`);
-
-      if (DRY) {
-        fotosBajadas++;
-        continue;
-      }
-      if (fs.existsSync(archivo) && fs.statSync(archivo).size > 2000) {
-        fotosBajadas++;
-        continue;
-      }
-      const r = await bajarFoto(foto, archivo);
-      if (r) fotosBajadas++;
-      else {
-        errores++;
-        console.warn(`      ✗ no se pudo bajar la foto ${foto.id}`);
-      }
-    }
+    const { rutas } = await guardarFotos(zp, fotos);
+    resumen.fotos += fotos.length;
 
     if (!DRY) {
-      // Borrar sobrantes de importaciones anteriores (01.jpg … NN.jpg)
-      for (const f of fs.readdirSync(carpeta)) {
-        const m = f.match(/^(\d+)\.jpg$/);
-        if (m && Number(m[1]) > fotos.length) fs.rmSync(path.join(carpeta, f), { force: true });
+      if (prop) {
+        await prisma.property.update({
+          where: { id: prop.id },
+          data: { images: JSON.stringify(rutas) },
+        });
+        resumen.actualizadas++;
+        console.log(`${prefijo}  ${prop.title} → ${fotos.length} fotos`);
+      } else {
+        const datos = datosDeAviso(html, url, zp);
+        const nueva = await prisma.property.create({
+          data: { ...datos, images: JSON.stringify(rutas) },
+        });
+        await prisma.auditLog.create({
+          data: { action: 'CREATE_PROPERTY_ZONAPROP', entity: 'Property', entity_id: nueva.id },
+        });
+        resumen.creadas++;
+        console.log(`${prefijo}  + borrador "${nueva.title}" (${fotos.length} fotos) → revisar en /admin`);
       }
-      await prisma.property.update({
-        where: { id: prop.id },
-        data: { images: JSON.stringify(rutas) },
-      });
+    } else {
+      const d = prop ? null : datosDeAviso(html, url, zp);
+      const quien = prop ? prop.title : `borrador: ${d.title} · ${d.address} · ${d.price} ${d.currency}`;
+      console.log(`${prefijo}  ${quien} → ${fotos.length} fotos`);
     }
-
-    actualizadas++;
-    console.log(`${prefijo}  ${prop.title} → ${fotos.length} fotos`);
   }
 
+  const idsPublicados = new Set(links.map(idDeUrl));
   const sinAviso = propiedades.filter((p) => {
-    const zp = idDePropiedad(p.external_link);
-    return !zp || !links.some((l) => idDeUrl(l) === zp);
+    const zp = p.external_link ? idDeUrl(p.external_link) : null;
+    return !zp || !idsPublicados.has(zp);
   });
 
   console.log('\n────────────────────────────────────────');
-  console.log(`Propiedades actualizadas: ${actualizadas}`);
-  console.log(`Fotos ${DRY ? 'a importar' : 'importadas'}: ${fotosBajadas}`);
-  if (errores) console.log(`Errores: ${errores}`);
+  console.log(`Propiedades actualizadas: ${resumen.actualizadas}`);
+  if (AGREGAR) console.log(`Propiedades creadas (borrador): ${resumen.creadas}`);
+  console.log(`Fotos ${DRY ? 'a importar' : 'importadas'}: ${resumen.fotos}`);
+  if (resumen.errores) console.log(`Errores: ${resumen.errores}`);
   if (sinFotos.length) console.log(`Avisos sin fotos: ${sinFotos.length}`);
 
   if (sinAviso.length) {
@@ -233,10 +379,10 @@ async function main() {
   if (sinCatalogo.length) {
     console.log(`\nPublicadas en ZonaProp pero fuera del catálogo (${sinCatalogo.length}):`);
     for (const p of sinCatalogo) {
-      console.log(`  · ${p.zp}  ${(p.title || '').slice(0, 70)}`);
-      console.log(`            ${p.address || 'sin dirección'} · ${p.price ? p.price + ' ' + (p.currency || '') : 'sin precio'} · ${p.fotos} fotos`);
+      console.log(`  · ${p.zp}  ${p.title.slice(0, 70)}`);
+      console.log(`            ${p.address} · ${p.price} ${p.currency} · ${p.fotos} fotos`);
     }
-    console.log('\n  Para agregarlas: crearlas desde /admin y volver a correr este script.');
+    console.log('\n  Corré con --agregar para crearlas como borrador con sus fotos.');
   }
 
   if (DRY) console.log('\n(simulación: no se escribió nada)');

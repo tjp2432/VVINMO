@@ -45,12 +45,15 @@ Las fotos de los avisos publicados se pueden traer automaticamente:
 cd server
 npm run importar:fotos              # baja todas las fotos y actualiza la base
 npm run importar:fotos -- --dry-run # solo informa, no escribe nada
+npm run importar:fotos -- --agregar # además crea como borrador los avisos nuevos
 ```
 
 - Recorre la pagina de la inmobiliaria en ZonaProp, entra a cada aviso y baja
   **todas** sus fotos (hasta 1600x1200) a `public/propiedades/<id-del-aviso>/`.
 - Asocia cada aviso con la propiedad cuyo `external_link` termina en ese ID.
+- Con `--agregar`, los avisos publicados que todavia no estan en el catalogo se
+  crean **sin publicar**, con titulo, direccion, precio, medidas, descripcion y
+  caracteristicas tomados de la ficha. Se revisan y publican desde `/admin`.
 - Vuelve a correrlo cuando quieras: no baja de nuevo las fotos que ya estan.
-- Al final lista las propiedades que ya no estan publicadas en ZonaProp y los
-  avisos publicados que todavia no estan en el catalogo.
+- Al final lista las propiedades que ya no estan publicadas en ZonaProp.
 - Necesita `curl` (viene en Windows 10+ y en Linux/macOS).
