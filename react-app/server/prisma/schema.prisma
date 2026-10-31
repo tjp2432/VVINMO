@@ -65,15 +65,25 @@ model Property {
   title       String
   description String?
   address     String
+  neighborhood String? // barrio
   city        String   @default("CABA")
   price       String
   currency    String   @default("USD")
-  type        String // venta/alquiler
-  status      String   @default("disponible") // disponible, alquilada, reservada
+  expenses    String? // expensas, texto libre ("$ 230.000")
+  type        String // venta/alquiler (operación)
+  property_type String @default("departamento") // departamento/casa/ph/oficina/local/terreno/cochera
+  status      String   @default("disponible") // disponible, alquilada, reservada, vendida
+  rooms       Int? // ambientes
   bedrooms    Int?
   bathrooms   Int?
-  area_m2     Float?
-  images      String? // JSON array
+  garage      Int? // cocheras
+  area_m2     Float? // superficie total
+  area_covered_m2 Float? // superficie cubierta
+  features    String? // JSON array de strings (características a mostrar)
+  images      String? // JSON array de URLs
+  external_link String? // ficha en Zonaprop u otro portal
+  featured    Boolean  @default(false) // aparece en destacadas del inicio
+  published   Boolean  @default(true) // visible en el sitio público
   owner_id    String?
   owner       User?    @relation("OwnerProperties", fields: [owner_id], references: [id])
   contracts   Contract[]

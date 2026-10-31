@@ -14,6 +14,11 @@ export default defineConfig({
         target: 'http://localhost:4000',
         changeOrigin: true,
       },
+      // Fotos de propiedades subidas desde el panel (server/uploads)
+      '/uploads': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+      },
     },
     hmr: { overlay: false },
   },

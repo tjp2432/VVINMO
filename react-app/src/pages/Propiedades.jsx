@@ -1,27 +1,21 @@
 import { useState } from 'react';
 import PropertyCard from '../components/PropertyCard.jsx';
-import { LISTADO } from '../data/propiedades.js';
-
-// USD ~ $1400 de referencia solo para ordenar (no es cotización)
-const USD_REF = 1400;
-function precioNum(p){
-  const m = (p.price || '').replace(/\./g, '').match(/[\d,]+/);
-  const n = m ? parseFloat(m[0].replace(/,/g, '')) : 0;
-  return /USD/i.test(p.price) ? n * USD_REF : n;
-}
+import { propiedadParaTarjeta, precioOrden, usePropiedades } from '../lib/propiedades.js';
 
 export default function Propiedades(){
+  const { items, loading, error } = usePropiedades();
   const [filtro, setFiltro] = useState('todas');
   const [orden, setOrden] = useState('none');
-  const items = LISTADO.filter(p => {
-    if (filtro === 'todas') return true;
-    const op = p.link.includes('/vecl') ? 'venta' : 'alquiler';
-    return op === filtro;
-  }).sort((a,b) => {
-    if (orden === 'asc') return precioNum(a) - precioNum(b);
-    if (orden === 'desc') return precioNum(b) - precioNum(a);
-    return 0;
-  });
+
+  const props = items
+    .filter(p => filtro === 'todas' || p.type === filtro)
+    .slice()
+    .sort((a,b) => {
+      if (orden === 'asc') return precioOrden(a) - precioOrden(b);
+      if (orden === 'desc') return precioOrden(b) - precioOrden(a);
+      return 0;
+    });
+
   return (
     <div className="section" style={{marginTop:40}}>
       <h2 className="section-title">Propiedades</h2>
@@ -42,7 +36,14 @@ export default function Propiedades(){
             <option value="desc">Precio: mayor a menor</option>
           </select>
         </div>
-        {items.map(p => <PropertyCard key={p.id} p={p} />)}
+
+        {loading && <p style={{gridColumn:'1 / -1',textAlign:'center',opacity:0.6}}>Cargando propiedades…</p>}
+        {error && <p style={{gridColumn:'1 / -1',textAlign:'center',color:'#b00020'}}>No se pudieron cargar las propiedades: {error}</p>}
+        {!loading && !error && props.length === 0 && (
+          <p style={{gridColumn:'1 / -1',textAlign:'center',opacity:0.6}}>No hay propiedades publicadas por ahora.</p>
+        )}
+
+        {props.map(p => <PropertyCard key={p.id} p={propiedadParaTarjeta(p)} />)}
       </div>
     </div>
   );

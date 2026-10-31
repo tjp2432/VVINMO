@@ -15,3 +15,15 @@ export async function api(path, { method='GET', body, auth=true }={}) {
   if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
   return data;
 }
+
+// Sube archivos (FormData) sin fijar Content-Type: el browser agrega el boundary.
+export async function apiUpload(path, formData) {
+  const res = await fetch(`${API}/api${path}`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+  const data = await res.json().catch(()=> ({}));
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data;
+}

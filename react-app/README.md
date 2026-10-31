@@ -14,3 +14,25 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the Oxlint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+
+## Panel de propiedades (solo ADMIN)
+
+El sitio publico ya **no** lee un archivo de datos: pide las propiedades a la API
+(`GET /api/properties`, solo las publicadas). Se cargan y editan desde el panel.
+
+1. Ingresa por `/login` (URL oculta, no esta en el menu) con una cuenta `ADMIN`.
+2. En `/admin` esta el panel de propiedades: alta, edicion, fotos, destacar,
+   publicar/despublicar y eliminar. El sitio se actualiza solo.
+
+### Puesta en marcha del backend
+
+```bash
+cd server
+npx prisma db push              # crea/actualiza las tablas en SQLite
+npm run seed                    # crea el usuario admin inicial
+npm run importar:propiedades    # opcional: carga las 25 propiedades historicas
+node src/index.js               # API en http://localhost:4000
+```
+
+Las fotos subidas desde el panel se guardan en `server/uploads/properties/` y se
+sirven en `/uploads/...` (en desarrollo Vite hace proxy de esa ruta).

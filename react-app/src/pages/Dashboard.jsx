@@ -1,6 +1,7 @@
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useEffect, useState } from 'react';
 import { api, API } from '../lib/api.js';
+import AdminPropiedades from './AdminPropiedades.jsx';
 
 function DashboardLayout({ title, children }){
   const { user, logout } = useAuth();
@@ -20,7 +21,6 @@ export function AdminDashboard(){
   const [props,setProps]=useState([]);
   const [users,setUsers]=useState([]);
   const [contracts,setContracts]=useState([]);
-  const [formProp,setFormProp]=useState({ title:'', address:'', price:'', type:'alquiler' });
   const [formContract,setFormContract]=useState({ property_id:'', owner_id:'', tenant_id:'', start_date:'', end_date:'', rent_amount:'' });
   const [formPay,setFormPay]=useState({ contract_id:'', amount:'', due_date:'', method:'transferencia', notes:'' });
   const [file,setFile]=useState(null);
@@ -28,7 +28,7 @@ export function AdminDashboard(){
 
   async function loadAll(){
     try{
-      const [p,u,c] = await Promise.all([ api('/properties'), api('/admin/users'), api('/contracts') ]);
+      const [p,u,c] = await Promise.all([ api('/properties/admin/all'), api('/admin/users'), api('/contracts') ]);
       setProps(p); setUsers(u); setContracts(c);
     }catch(e){ setMsg(e.message); }
   }
@@ -42,10 +42,6 @@ export function AdminDashboard(){
   const propietarios = users.filter(u=>u.role==='PROPIETARIO');
   const inquilinos = users.filter(u=>u.role==='INQUILINO');
 
-  async function createProp(e){
-    e.preventDefault();
-    try{ await api('/properties',{method:'POST', body:formProp}); setMsg('Propiedad creada'); setFormProp({title:'',address:'',price:'',type:'alquiler'}); loadAll(); }catch(ex){ setMsg(ex.message); }
-  }
   async function assignOwner(propId, ownerId){
     try{ await api(`/admin/properties/${propId}/assign`,{method:'PATCH', body:{owner_id:ownerId}}); setMsg('Propietario asignado'); loadAll(); }catch(ex){ setMsg(ex.message); }
   }
@@ -73,6 +69,12 @@ export function AdminDashboard(){
     <DashboardLayout title="Panel Inmobiliaria (ADMIN)">
       {msg && <div style={{background:'#fff7fb',padding:10,borderRadius:8,marginBottom:12,border:'1px solid #ffd0e8'}}>{msg}</div>}
 
+      {/* Panel principal: carga de propiedades */}
+      <AdminPropiedades />
+
+      <details style={{marginTop:28}}>
+        <summary style={{cursor:'pointer',fontWeight:700,opacity:0.75,marginBottom:14}}>Usuarios, contratos y pagos (heredado)</summary>
+
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
         {/* Usuarios */}
         <div style={{background:'rgba(255,255,255,0.85)',padding:16,borderRadius:14}}>
@@ -87,17 +89,7 @@ export function AdminDashboard(){
           </div>
         </div>
 
-        {/* Crear propiedad */}
-        <div style={{background:'rgba(255,255,255,0.85)',padding:16,borderRadius:14}}>
-          <h3>Crear propiedad</h3>
-          <form onSubmit={createProp} style={{display:'grid',gap:8}}>
-            <input placeholder="Título" required value={formProp.title} onChange={e=>setFormProp({...formProp,title:e.target.value})} style={inp} />
-            <input placeholder="Dirección" required value={formProp.address} onChange={e=>setFormProp({...formProp,address:e.target.value})} style={inp} />
-            <input placeholder="Precio (ej: $850.000)" required value={formProp.price} onChange={e=>setFormProp({...formProp,price:e.target.value})} style={inp} />
-            <select value={formProp.type} onChange={e=>setFormProp({...formProp,type:e.target.value})} style={inp}><option value="alquiler">Alquiler</option><option value="venta">Venta</option></select>
-            <button className="btn" type="submit">Crear</button>
-          </form>
-        </div>
+        {/* Crear propiedad: se hace desde el panel de propiedades de arriba */}
       </div>
 
       {/* Propiedades + asignar */}
@@ -148,6 +140,7 @@ export function AdminDashboard(){
           <button className="btn" type="submit" style={{gridColumn:'1 / -1'}}>Documentar pago (solo registro)</button>
         </form>
       </div>
+      </details>
     </DashboardLayout>
   );
 }

@@ -1,14 +1,13 @@
 import { useState, memo, lazy, Suspense, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, useParams } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthProvider.jsx'
 import { useAuth } from './contexts/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import PropertyCard from './components/PropertyCard.jsx'
-import { DESTACADAS } from './data/propiedades.js'
+import { propiedadParaTarjeta, usePropiedades } from './lib/propiedades.js'
 import './App.css'
 const Login = lazy(()=> import('./pages/Login.jsx'))
 const Verify2FA = lazy(()=> import('./pages/Verify2FA.jsx'))
-const Privacidad = lazy(()=> import('./pages/Privacidad.jsx'))
 const PropertyDetail = lazy(()=> import('./pages/PropertyDetail.jsx'))
 const Propiedades = lazy(()=> import('./pages/Propiedades.jsx'))
 
@@ -27,7 +26,7 @@ const Navbar = memo(function Navbar(){
           <ul className={`nav-links ${open ? 'open' : ''}`}>
             <li><Link to="/propiedades" onClick={() => setOpen(false)}>Propiedades</Link></li>
             <li><a href="/#nosotros" onClick={() => setOpen(false)}>Nosotros</a></li>
-            <li><Link to="/privacidad" onClick={() => setOpen(false)}>Privacidad</Link></li>
+            <li><a href="/#contacto" onClick={() => setOpen(false)}>Contacto</a></li>
             {user && (
               <>
                 {user.role==='ADMIN' && <li><Link to="/admin" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Panel Admin</Link></li>}
@@ -45,6 +44,11 @@ const Navbar = memo(function Navbar(){
 })
 
 const Home = memo(function Home(){
+  const { items } = usePropiedades()
+  // Destacadas: las marcadas como destacadas; si no hay, las primeras publicadas.
+  const marcadas = items.filter(p => p.featured)
+  const destacadas = (marcadas.length ? marcadas : items).slice(0, 3)
+
   // El formulario no manda nada a ningun servidor: arma el mensaje y abre
   // WhatsApp con el texto ya cargado (+54 9 11 6467-1905).
   function contactoWhatsApp(e){
@@ -76,8 +80,9 @@ const Home = memo(function Home(){
       <section className="section" id="propiedades">
         <h2 className="section-title">Propiedades destacadas</h2>
         <div className="properties-grid">
-          {DESTACADAS.map(p => <PropertyCard key={p.id} p={p} />)}
+          {destacadas.map(p => <PropertyCard key={p.id} p={propiedadParaTarjeta(p)} />)}
         </div>
+        {destacadas.length === 0 && <p style={{textAlign:'center',opacity:0.6}}>Muy pronto vas a ver acá nuestras propiedades.</p>}
         <div style={{textAlign:'center',marginTop:28}}>
           <Link to="/propiedades" className="btn" style={{background:'rgba(140,0,80,0.85)'}}>Ver más propiedades</Link>
         </div>
@@ -105,8 +110,8 @@ const Home = memo(function Home(){
       <footer>
         <div className="footer-container">
           <div className="footer-grid">
-            <div className="footer-brand"><h3>Verónica Villafañe</h3><p>Tu aliado en el mercado inmobiliario. Con dedicación y profesionalismo, transformamos tus metas en realidad.</p><p style={{fontSize:12,opacity:0.6,marginTop:8}}><Link to="/privacidad" style={{color:'#ff8ac6'}}>Política de Privacidad Ley 25.326</Link> · Base AAIP · Datos encriptados AES-256</p></div>
-            <div className="footer-links"><h4>Enlaces</h4><ul><li><Link to="/">Inicio</Link></li><li><Link to="/propiedades">Propiedades</Link></li><li><Link to="/#nosotros">Nosotros</Link></li><li><Link to="/#contacto">Contacto</Link></li><li><Link to="/privacidad">Privacidad</Link></li></ul></div>
+            <div className="footer-brand"><h3>Verónica Villafañe</h3><p>Tu aliado en el mercado inmobiliario. Con dedicación y profesionalismo, transformamos tus metas en realidad.</p></div>
+            <div className="footer-links"><h4>Enlaces</h4><ul><li><Link to="/">Inicio</Link></li><li><Link to="/propiedades">Propiedades</Link></li><li><Link to="/#nosotros">Nosotros</Link></li><li><Link to="/#contacto">Contacto</Link></li></ul></div>
             <div className="footer-contact"><h4>Contacto</h4><ul><li>📞 +54 9 11 6467-1905</li><li>✉️ info@veronicavillafane.com</li><li>📍 Virrey del Pino 2829, CABA, Buenos Aires, Argentina.</li></ul></div>
           </div>
           <div className="footer-bottom"><p>© 2026 Verónica Villafañe - Inmobiliaria Integral. Todos los derechos reservados.</p></div>
@@ -130,10 +135,11 @@ export default function App(){
             <Route path="/propiedad/:id" element={<PropertyDetailRoute />} />
             <Route path="/login" element={<Login />} />
             <Route path="/verify-2fa" element={<Verify2FA />} />
-            <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><Suspense fallback={<div style={{padding:40}}>Cargando panel…</div>}><DashWrapper which="admin"/></Suspense></ProtectedRoute>} />
             <Route path="/propietario" element={<ProtectedRoute roles={['PROPIETARIO','ADMIN']}><DashWrapper which="prop"/></ProtectedRoute>} />
             <Route path="/inquilino" element={<ProtectedRoute roles={['INQUILINO','ADMIN']}><DashWrapper which="inq"/></ProtectedRoute>} />
+            {/* Cualquier URL desconocida (ej. la vieja /privacidad) vuelve al inicio */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </AuthProvider>
