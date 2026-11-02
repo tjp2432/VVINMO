@@ -131,7 +131,7 @@
     .hero {
       height: 88vh;
       min-height: 560px;
-      background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.65)), url('/HERO.jpg');
+      background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.65)), url('/hero-belgranoR.jpg');
       background-size: cover;
       background-position: center 24%;
       display: flex;
