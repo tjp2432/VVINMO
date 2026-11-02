@@ -1,5 +1,14 @@
 # React + Vite
 
+## Encender / apagar el sitio
+
+- **`iniciar.bat`** (doble clic): levanta la API y el sitio en dos ventanas y abre
+  el navegador en http://localhost:5173. No cierres esas ventanas mientras lo usás.
+- **`detener.bat`**: apaga los dos servidores.
+
+Si querés hacerlo a mano: `cd server && node src/index.js` en una terminal y
+`npm run dev` en otra.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:
