@@ -138,7 +138,8 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      color: var(--white);
+      color: #ffffff;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.45);
       position: relative;
       -webkit-mask-image: linear-gradient(to bottom, black 96.5%, transparent 100%);
       mask-image: linear-gradient(to bottom, black 96.5%, transparent 100%);
