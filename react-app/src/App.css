@@ -535,6 +535,10 @@
       nav { padding: 0.7rem 5%; z-index: 1300; }
       .hamburger { display: flex; }
       .logo { position: static; }
+      /* Simetria con el menu: las barras del icono quedan a 10px del borde
+         derecho, (44px del boton - 24px del icono) / 2. El logo arranca a esa
+         misma distancia menos los ~2.4px transparentes que trae el PNG. */
+      .logo { margin-left: 7.5px !important; }
       .logo > div:last-child { position: absolute; left: 48%; top: 50%; transform: translate(-50%, -50%); width: max-content; max-width: 62vw; }
       /* Los enlaces de escritorio se ocultan: en mobile se usa el panel. */
       .nav-links { display: none; }
