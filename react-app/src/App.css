@@ -251,6 +251,10 @@
       box-shadow: 0 0 0 100vmax #ffffff;
       clip-path: inset(0 -100vmax);
     }
+    /* Misma sombra que el formulario de contacto, para las tarjetas del inicio. */
+    #propiedades .property-card {
+      box-shadow: 0 22px 50px rgba(44,62,80,0.22), 0 6px 18px rgba(44,62,80,0.12);
+    }
 
     .property-card {
       background: var(--white);
