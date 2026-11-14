@@ -291,6 +291,12 @@
     @media (max-width: 700px) {
       .contact-legal { white-space: normal; font-size: 10px; }
     }
+    /* Asterisco de campo obligatorio (fucsia de la marca). */
+    .req {
+      color: #c0006e;
+      font-weight: 700;
+      margin-left: 2px;
+    }
     .contact-glass {
       background: rgba(247,237,224,0.68);
       backdrop-filter: blur(12px) saturate(1.15);

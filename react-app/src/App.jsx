@@ -97,10 +97,10 @@ const Home = memo(function Home(){
           <div className="contact-form">
             <h2 className="section-title">Contactanos</h2>
             <form onSubmit={contactoWhatsApp}>
-              <div className="form-group"><label htmlFor="c-nombre">Nombre completo</label><input id="c-nombre" name="nombre" placeholder="Tu nombre" required /></div>
+              <div className="form-group"><label htmlFor="c-nombre">Nombre completo<span className="req">*</span></label><input id="c-nombre" name="nombre" placeholder="Tu nombre" required /></div>
               <div className="form-group"><label htmlFor="c-email">Email</label><input id="c-email" name="email" type="email" placeholder="tu@email.com" required /></div>
-              <div className="form-group"><label htmlFor="c-tel">Teléfono</label><input id="c-tel" name="telefono" placeholder="+54 9 11 1234-5678" /></div>
-              <div className="form-group"><label htmlFor="c-msg">Mensaje</label><textarea id="c-msg" name="mensaje" rows={4} placeholder="Cuéntanos qué propiedad te interesa o cómo podemos ayudarte"></textarea></div>
+              <div className="form-group"><label htmlFor="c-tel">Teléfono<span className="req">*</span></label><input id="c-tel" name="telefono" placeholder="+54 9 11 1234-5678" /></div>
+              <div className="form-group"><label htmlFor="c-msg">Mensaje<span className="req">*</span></label><textarea id="c-msg" name="mensaje" rows={4} placeholder="Cuéntanos qué propiedad te interesa o cómo podemos ayudarte"></textarea></div>
               <button type="submit" className="btn">Enviar por WhatsApp</button>
               <p className="contact-legal">No almacenamos tus datos en este sitio. Al continuar, serás redirigido a WhatsApp para iniciar el chat directamente con nosotros.</p>
             </form>
