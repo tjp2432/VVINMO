@@ -11,6 +11,7 @@ const Login = lazy(()=> import('./pages/Login.jsx'))
 const Verify2FA = lazy(()=> import('./pages/Verify2FA.jsx'))
 const PropertyDetail = lazy(()=> import('./pages/PropertyDetail.jsx'))
 const Propiedades = lazy(()=> import('./pages/Propiedades.jsx'))
+const Privacidad = lazy(()=> import('./pages/Privacidad.jsx'))
 
 
 const Navbar = memo(function Navbar(){
@@ -168,7 +169,10 @@ const Home = memo(function Home(){
             <div className="footer-links"><h4>Enlaces</h4><ul><li><Link to="/">Inicio</Link></li><li><Link to="/propiedades">Propiedades</Link></li><li><Link to="/#nosotros">Nosotros</Link></li><li><Link to="/#contacto">Contacto</Link></li></ul></div>
             <div className="footer-contact"><h4>Contacto</h4><ul><li>📞 +54 9 11 6467-1905</li><li>✉️ info@veronicavillafane.com</li><li>📍 Virrey del Pino 2829, CABA, Buenos Aires, Argentina.</li></ul></div>
           </div>
-          <div className="footer-bottom"><p>© 2026 Verónica Villafañe - Inmobiliaria Integral. Todos los derechos reservados.</p></div>
+          <div className="footer-bottom">
+            <p>© 2026 Verónica Villafañe - Inmobiliaria Integral. Todos los derechos reservados.</p>
+            <Link to="/privacidad">Política de Privacidad</Link>
+          </div>
         </div>
       </footer>
       <a className="whatsapp-float" href="https://wa.me/5491164671905" target="_blank" aria-label="WhatsApp"><img src="/wpp logo.png" alt="WhatsApp" loading="lazy" decoding="async" draggable={false} onDragStart={e=>e.preventDefault()} style={{ width: 76, height: 76, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.25))' }} /></a>
@@ -187,13 +191,14 @@ export default function App(){
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/propiedades" element={<Propiedades />} />
+            <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/propiedad/:id" element={<PropertyDetailRoute />} />
             <Route path="/login" element={<Login />} />
             <Route path="/verify-2fa" element={<Verify2FA />} />
             <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><Suspense fallback={<div style={{padding:40}}>Cargando panel…</div>}><DashWrapper which="admin"/></Suspense></ProtectedRoute>} />
             <Route path="/propietario" element={<ProtectedRoute roles={['PROPIETARIO','ADMIN']}><DashWrapper which="prop"/></ProtectedRoute>} />
             <Route path="/inquilino" element={<ProtectedRoute roles={['INQUILINO','ADMIN']}><DashWrapper which="inq"/></ProtectedRoute>} />
-            {/* Cualquier URL desconocida (ej. la vieja /privacidad) vuelve al inicio */}
+            {/* Cualquier URL desconocida vuelve al inicio */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
