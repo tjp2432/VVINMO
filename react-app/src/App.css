@@ -12,6 +12,24 @@
       --light: #ece0d0;
       --white: #f7ede0;
       --text: #2c3e50;
+      /* Tipografia tipo iOS: San Francisco en equipos Apple; Inter (muy
+         parecida y libre) como respaldo en Windows/Android. */
+      --font-ios: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/fonts/inter-latin-400.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('/fonts/inter-latin-500.woff2') format('woff2');
     }
 
     body {
@@ -194,6 +212,13 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+      font-family: var(--font-ios);
+      letter-spacing: -0.01em;
+    }
+    /* Texto que sigue al hero (¿Quienes somos?): misma tipografia tipo iOS. */
+    #inicio > p {
+      font-family: var(--font-ios);
+      letter-spacing: -0.01em;
     }
 
     /* Sections */
