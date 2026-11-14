@@ -9,6 +9,9 @@ export default defineConfig({
     // de la red local (http://<IP-de-esta-maquina>:5173).
     host: true,
     port: 5173,
+    // Permite abrir el sitio por un tunel de Cloudflare (para mostrarlo
+    // afuera sin publicar hosting). Solo para desarrollo.
+    allowedHosts: ['.trycloudflare.com'],
     proxy: {
       '/api': {
         target: 'http://localhost:4000',
