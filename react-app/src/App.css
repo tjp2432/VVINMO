@@ -251,9 +251,10 @@
       box-shadow: 0 0 0 100vmax #ffffff;
       clip-path: inset(0 -100vmax);
     }
-    /* Misma sombra que el formulario de contacto, para las tarjetas del inicio. */
-    #propiedades .property-card {
-      box-shadow: 0 18px 40px rgba(30,41,59,0.28), 0 6px 14px rgba(30,41,59,0.16);
+    /* Sombra del bloque de destacadas: se aplica a la grilla porque el
+       clip-path de cada tarjeta recorta la sombra de la tarjeta misma. */
+    #propiedades .properties-grid {
+      filter: drop-shadow(0 14px 18px rgba(30,41,59,0.28)) drop-shadow(0 4px 8px rgba(30,41,59,0.16));
     }
 
     .property-card {
@@ -261,6 +262,7 @@
       border-radius: 20px;
       corner-shape: superellipse(2);
       corner-smoothing: 60%;
+      clip-path: url(#squircle-20-continuous);
       overflow: hidden;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       transition: transform 0.3s;
