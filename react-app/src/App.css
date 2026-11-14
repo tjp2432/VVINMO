@@ -279,6 +279,18 @@
       max-width: 600px;
       margin: 0 auto;
     }
+    /* Aviso legal debajo del boton: una sola linea en escritorio. */
+    .contact-legal {
+      font-size: 9px;
+      line-height: 1.4;
+      opacity: 0.7;
+      margin: 10px 0 0;
+      text-align: center;
+      white-space: nowrap;
+    }
+    @media (max-width: 700px) {
+      .contact-legal { white-space: normal; font-size: 10px; }
+    }
     .contact-glass {
       background: rgba(247,237,224,0.68);
       backdrop-filter: blur(12px) saturate(1.15);
