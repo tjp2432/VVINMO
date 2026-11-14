@@ -38,6 +38,8 @@
       line-height: 1.6;
       background: var(--white);
     }
+    /* Con el menu mobile abierto no se scrollea el fondo. */
+    body.menu-abierto { overflow: hidden; }
 
     a {
       text-decoration: none;
@@ -99,12 +101,40 @@
     }
     .logo-svg { display: block; }
     .logo-svg-hero { filter: drop-shadow(0 3px 8px rgba(0,0,0,0.35)); }
-    .hamburger { display: none; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #d6d6d6; line-height: 1; }
+    /* Hamburguesa: tres barras que pasan a X cuando el menu esta abierto. */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #d6d6d6;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+      transition: transform 0.25s ease, opacity 0.2s ease;
+    }
+    .hamburger.abierto span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.abierto span:nth-child(2) { opacity: 0; }
+    .hamburger.abierto span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
     .nav-links {
       display: flex;
       gap: 2rem;
     }
+
+    /* Menu lateral mobile: vive fuera del <nav> y solo aparece en mobile. */
+    .menu-mobile, .menu-overlay { display: none; }
 
     .nav-links a {
       font-weight: 500;
@@ -500,31 +530,80 @@
       .filters-group { justify-content: center; }
     }
     @media (max-width: 768px) {
-      nav { padding: 0.7rem 5%; }
-      .hamburger { display: block; z-index: 1300; }
+      /* Navbar por encima del velo y del panel para que logo y hamburguesa
+         sigan visibles y se pueda cerrar el menu. */
+      nav { padding: 0.7rem 5%; z-index: 1300; }
+      .hamburger { display: flex; }
       .logo { position: static; }
       .logo > div:last-child { position: absolute; left: 48%; top: 50%; transform: translate(-50%, -50%); width: max-content; max-width: 62vw; }
-      .nav-links {
+      /* Los enlaces de escritorio se ocultan: en mobile se usa el panel. */
+      .nav-links { display: none; }
+
+      /* Menu desplegable: barra horizontal pegada debajo del header que baja
+         con una animacion de arriba hacia abajo al tocar la hamburguesa. */
+      .menu-mobile {
         display: flex;
         position: fixed;
-        top: 0;
+        top: var(--nav-alto, 62px);
+        left: 0;
         right: 0;
-        left: auto;
-        height: 100vh;
-        width: 78vw;
-        max-width: 300px;
-        background: rgba(22,18,24,0.98);
-        flex-direction: column;
-        padding: 78px 1.6rem 1.6rem;
-        gap: 1.1rem;
-        border-left: 1px solid rgba(255,255,255,0.06);
-        box-shadow: -8px 0 32px rgba(0,0,0,0.35);
-        transform: translateX(100%);
-        transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0 1.6rem;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: rgba(38,36,42,0.98);
+        backdrop-filter: blur(10px) saturate(1.15);
+        -webkit-backdrop-filter: blur(10px) saturate(1.15);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 16px 34px rgba(0,0,0,0.38);
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition:
+          max-height 0.34s cubic-bezier(0.22,1,0.36,1),
+          transform 0.34s cubic-bezier(0.22,1,0.36,1),
+          opacity 0.22s ease,
+          visibility 0.34s;
+        z-index: 1260;
+      }
+      .menu-mobile.open {
+        max-height: calc(100dvh - var(--nav-alto, 62px));
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      .menu-mobile li { list-style: none; }
+      .menu-mobile a,
+      .menu-mobile button {
+        display: inline-block;
+        width: auto;
+        padding: 0.75rem 0.15rem;
+        font-size: 1rem;
+        text-align: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .menu-mobile a { color: #ffffff; }
+      .menu-mobile a:hover { color: #ff3d9a; }
+
+      .menu-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.32);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
         z-index: 1250;
       }
-      .nav-links.open { transform: translateX(0); }
-      .nav-links a { padding: 0.4rem 0; font-size: 1.05rem; }
+      .menu-overlay.open { opacity: 1; pointer-events: auto; }
       .hero { height: 82vh; min-height: 520px; }
       .hero-logo-glass { width: 300px; height: 300px; padding: 22px; }
       .hero p { font-size: 1.05rem; padding: 0 1rem; }

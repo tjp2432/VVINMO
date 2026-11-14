@@ -1,4 +1,4 @@
-import { useState, memo, lazy, Suspense, useEffect } from 'react'
+import { useState, useRef, memo, lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Link, Navigate, useParams } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthProvider.jsx'
 import { useAuth } from './contexts/AuthContext.jsx'
@@ -16,30 +16,83 @@ const Propiedades = lazy(()=> import('./pages/Propiedades.jsx'))
 const Navbar = memo(function Navbar(){
   const [open, setOpen] = useState(false)
   const { user, logout } = useAuth()
+  const navRef = useRef(null)
+
+  // Publica el alto real del navbar en --nav-alto: el panel mobile arranca
+  // justo debajo, sin franjas ni numeros fijos que fallen en otros telefonos.
+  useEffect(() => {
+    const barra = navRef.current
+    if (!barra) return
+    const medir = () => document.documentElement.style.setProperty('--nav-alto', `${barra.offsetHeight}px`)
+    medir()
+    if (typeof ResizeObserver === 'undefined') return
+    const observador = new ResizeObserver(medir)
+    observador.observe(barra)
+    return () => observador.disconnect()
+  }, [])
+
+  // Cierra el menu mobile con Escape o al volver a escritorio, y bloquea el
+  // scroll del fondo mientras esta abierto.
+  useEffect(() => {
+    if (!open) return
+    const alTeclear = e => { if (e.key === 'Escape') setOpen(false) }
+    const alRedimensionar = () => { if (window.innerWidth > 768) setOpen(false) }
+    window.addEventListener('keydown', alTeclear)
+    window.addEventListener('resize', alRedimensionar)
+    document.body.classList.add('menu-abierto')
+    return () => {
+      window.removeEventListener('keydown', alTeclear)
+      window.removeEventListener('resize', alRedimensionar)
+      document.body.classList.remove('menu-abierto')
+    }
+  }, [open])
+
+  const enlaces = (
+    <>
+      <li><Link to="/propiedades" onClick={() => setOpen(false)}>Propiedades</Link></li>
+      <li><a href="/#nosotros" onClick={() => setOpen(false)}>Nosotros</a></li>
+      <li><a href="/#contacto" onClick={() => setOpen(false)}>Contacto</a></li>
+      {user && (
+        <>
+          {user.role==='ADMIN' && <li><Link to="/admin" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Panel Admin</Link></li>}
+          {user.role==='PROPIETARIO' && <li><Link to="/propietario" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Mi Panel</Link></li>}
+          {user.role==='INQUILINO' && <li><Link to="/inquilino" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Mi Panel</Link></li>}
+          <li><button onClick={() => { setOpen(false); logout() }} style={{background:'transparent',border:'1px solid #555',color:'#d6d6d6',padding:'6px 12px',borderRadius:20,cursor:'pointer'}}>Salir ({user.role})</button></li>
+        </>
+      )}
+    </>
+  )
+
   return (
     <>
-      <nav>
+      <nav ref={navRef}>
         <div className="nav-container">
           <Link to="/" onClick={()=> setOpen(false)} className="logo" style={{ gap: 10, marginLeft: -14, cursor:'pointer' }}>
             <img src="/pdf-logos/logo_horizontal_transp.png" alt="Veronica Villafañe - Inmobiliaria Integral" loading="eager" decoding="async" fetchPriority="high" draggable={false} onDragStart={e=>e.preventDefault()} style={{ height: 52, width: 'auto', display: 'block', position: 'relative', top: 2 }} />
           </Link>
-          <button className="hamburger" onClick={() => setOpen(!open)} aria-label="Menú">☰</button>
-          <ul className={`nav-links ${open ? 'open' : ''}`}>
-            <li><Link to="/propiedades" onClick={() => setOpen(false)}>Propiedades</Link></li>
-            <li><a href="/#nosotros" onClick={() => setOpen(false)}>Nosotros</a></li>
-            <li><a href="/#contacto" onClick={() => setOpen(false)}>Contacto</a></li>
-            {user && (
-              <>
-                {user.role==='ADMIN' && <li><Link to="/admin" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Panel Admin</Link></li>}
-                {user.role==='PROPIETARIO' && <li><Link to="/propietario" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Mi Panel</Link></li>}
-                {user.role==='INQUILINO' && <li><Link to="/inquilino" onClick={() => setOpen(false)} style={{color:'#ff3d9a'}}>Mi Panel</Link></li>}
-                <li><button onClick={logout} style={{background:'transparent',border:'1px solid #555',color:'#d6d6d6',padding:'6px 12px',borderRadius:20,cursor:'pointer'}}>Salir ({user.role})</button></li>
-              </>
-            )}
-          </ul>
+          <button
+            className={`hamburger ${open ? 'abierto' : ''}`}
+            onClick={() => setOpen(v => !v)}
+            aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={open}
+            aria-controls="menu-mobile"
+          >
+            <span /><span /><span />
+          </button>
+          <ul className="nav-links">{enlaces}</ul>
         </div>
       </nav>
-      {open && <div onClick={() => setOpen(false)} style={{ display: 'block', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.38)', zIndex: 1240 }}></div>}
+
+      {/* Menu mobile fuera del <nav>: el blur y el `contain: paint` del navbar
+          recortan cualquier hijo position:fixed y lo dejaban pegado arriba. */}
+      <ul id="menu-mobile" className={`menu-mobile ${open ? 'open' : ''}`}>
+        {enlaces}
+      </ul>
+      <div
+        className={`menu-overlay ${open ? 'open' : ''}`}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
     </>
   )
 })
