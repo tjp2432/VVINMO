@@ -96,7 +96,7 @@ const Home = memo(function Home(){
         <div className="contact-glass">
           <div className="contact-form">
             <h2 className="section-title">Contactanos</h2>
-            <p style={{fontSize:14,opacity:0.75,marginTop:-6,marginBottom:14}}>Al enviar se abre WhatsApp con tu mensaje ya escrito. También podés escribirnos directo al <a href="https://wa.me/5491164671905" target="_blank" rel="noreferrer" style={{color:'#c0006e',fontWeight:600}}>+54 9 11 6467-1905</a>.</p>
+            <p style={{fontSize:14,opacity:0.75,marginTop:-6,marginBottom:14}}>No almacenamos tus datos en este sitio. Al continuar, serás redirigido a WhatsApp para iniciar el chat directamente con nosotros.</p>
             <form onSubmit={contactoWhatsApp}>
               <div className="form-group"><label htmlFor="c-nombre">Nombre completo</label><input id="c-nombre" name="nombre" placeholder="Tu nombre" required /></div>
               <div className="form-group"><label htmlFor="c-email">Email</label><input id="c-email" name="email" type="email" placeholder="tu@email.com" required /></div>
