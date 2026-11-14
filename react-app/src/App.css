@@ -220,6 +220,11 @@
       font-family: var(--font-ios);
       letter-spacing: -0.01em;
     }
+    /* Parrafos de Quienes somos / Nuestra Historia en negro puro. */
+    #inicio p,
+    #nosotros p {
+      color: #000000;
+    }
 
     /* Sections */
     .section {
