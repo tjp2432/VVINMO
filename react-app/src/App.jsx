@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link, Navigate, useParams } from 'react-r
 import { AuthProvider } from './contexts/AuthProvider.jsx'
 import { useAuth } from './contexts/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import ScrollToTop from './components/ScrollToTop.jsx'
 import PropertyCard from './components/PropertyCard.jsx'
 import { propiedadParaTarjeta, usePropiedades } from './lib/propiedades.js'
 import './App.css'
@@ -128,6 +129,7 @@ export default function App(){
       <AuthProvider>
         <svg width="0" height="0" style={{ position: 'absolute' }}><defs><clipPath id="squircle-20-continuous" clipPathUnits="objectBoundingBox"><path d="M 0.105 0 C 0.04 0 0 0.04 0 0.105 L 0 0.895 C 0 0.96 0.04 1 0.105 1 L 0.895 1 C 0.96 1 1 0.96 1 0.895 L 1 0.105 C 1 0.04 0.96 0 0.895 0 Z" /></clipPath></defs></svg>
         <Navbar />
+        <ScrollToTop />
         <Suspense fallback={<div style={{padding:120,textAlign:'center',opacity:0.6}}>Cargando…</div>}>
           <Routes>
             <Route path="/" element={<Home />} />
