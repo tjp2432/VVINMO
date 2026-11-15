@@ -157,8 +157,28 @@
       color: var(--white);
       border-radius: 22px;
       font-weight: 600;
+      cursor: pointer;
+      /* Los <button> no heredan tipografia: sin esto quedaban en Arial 13px
+         y no coincidian con los enlaces con la misma clase. */
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1.6;
+      text-align: center;
       transition: background 0.3s;
       transform: translateZ(0);
+    }
+
+    /* Variante solida y pareja: la usan "Ver mas propiedades" y el envio del
+       formulario. Se adapta al ancho: en mobile ocupa todo, en PC mide su texto. */
+    .btn-solid {
+      background: rgba(140,0,80,0.85);
+      width: 100%;
+      max-width: 340px;
+      white-space: normal;
+    }
+    /* En pantallas grandes el boton vuelve a medir lo que mide su texto. */
+    @media (min-width: 601px) {
+      .btn-solid { width: fit-content; max-width: none; }
     }
 
     .btn:hover {
@@ -368,6 +388,15 @@
     @media (max-width: 700px) {
       .contact-legal { white-space: normal; font-size: 10px; }
     }
+    /* Enlace a la politica desde el aviso del formulario. */
+    .contact-legal-link {
+      color: #c0006e;
+      font-weight: 500;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      white-space: nowrap;
+    }
+    .contact-legal-link:hover { color: #8e0052; }
     /* Asterisco de campo obligatorio (fucsia de la marca). */
     .req {
       color: #c0006e;
@@ -431,15 +460,8 @@
       contain: paint;
     }
     #contacto .btn {
-      background: rgba(192,0,110,0.88);
-      border-radius: 18px;
-      corner-shape: superellipse(2);
-      corner-smoothing: 60%;
-      border: 1px solid rgba(255,255,255,0.28);
-      box-shadow: 0 4px 16px rgba(192,0,110,0.22);
       display: block;
       margin: 1.4rem auto 0;
-      width: fit-content;
       transform: translateZ(0);
     }
 

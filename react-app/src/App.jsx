@@ -139,7 +139,7 @@ const Home = memo(function Home(){
         </div>
         {destacadas.length === 0 && <p style={{textAlign:'center',opacity:0.6}}>Muy pronto vas a ver acá nuestras propiedades.</p>}
         <div style={{textAlign:'center',marginTop:28}}>
-          <Link to="/propiedades" className="btn" style={{background:'rgba(140,0,80,0.85)'}}>Ver más propiedades</Link>
+          <Link to="/propiedades" className="btn btn-solid">Ver más propiedades</Link>
         </div>
       </section>
       <section className="section" id="nosotros" style={{ textAlign: 'center' }}>
@@ -156,8 +156,8 @@ const Home = memo(function Home(){
               <div className="form-group"><label htmlFor="c-email">Email</label><input id="c-email" name="email" type="email" placeholder="tu@email.com" required /></div>
               <div className="form-group"><label htmlFor="c-tel">Teléfono<span className="req">*</span></label><input id="c-tel" name="telefono" placeholder="+54 9 11 1234-5678" /></div>
               <div className="form-group"><label htmlFor="c-msg">Mensaje<span className="req">*</span></label><textarea id="c-msg" name="mensaje" rows={4} placeholder="Cuéntanos qué propiedad te interesa o cómo podemos ayudarte"></textarea></div>
-              <button type="submit" className="btn">Enviar por WhatsApp</button>
-              <p className="contact-legal">No almacenamos tus datos en este sitio. Al continuar, serás redirigido a WhatsApp para iniciar el chat directamente con nosotros.</p>
+              <button type="submit" className="btn btn-solid">Enviar por WhatsApp</button>
+              <p className="contact-legal">No almacenamos tus datos en este sitio. Al continuar se abre WhatsApp. <Link to="/privacidad" className="contact-legal-link">Ver política de privacidad</Link></p>
             </form>
           </div>
         </div>
