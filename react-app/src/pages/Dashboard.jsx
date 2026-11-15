@@ -17,135 +17,17 @@ function DashboardLayout({ title, children }){
 }
 
 // -------- ADMIN --------
+// El panel del administrador queda acotado a la gestion de propiedades
+// (crear, editar, publicar, destacar, borrar y subir fotos). Las secciones de
+// usuarios, contratos y pagos se retiraron; el backend sigue teniendo esas
+// rutas por si se retoman mas adelante.
 export function AdminDashboard(){
-  const [props,setProps]=useState([]);
-  const [users,setUsers]=useState([]);
-  const [contracts,setContracts]=useState([]);
-  const [formContract,setFormContract]=useState({ property_id:'', owner_id:'', tenant_id:'', start_date:'', end_date:'', rent_amount:'' });
-  const [formPay,setFormPay]=useState({ contract_id:'', amount:'', due_date:'', method:'transferencia', notes:'' });
-  const [file,setFile]=useState(null);
-  const [msg,setMsg]=useState('');
-
-  async function loadAll(){
-    try{
-      const [p,u,c] = await Promise.all([ api('/properties/admin/all'), api('/admin/users'), api('/contracts') ]);
-      setProps(p); setUsers(u); setContracts(c);
-    }catch(e){ setMsg(e.message); }
-  }
-  // Se difiere con setTimeout: cargar y setear estado en el primer render
-  // provoca cascada de renders (react/set-state-in-effect).
-  useEffect(()=>{
-    const t = setTimeout(loadAll, 0);
-    return ()=> clearTimeout(t);
-  },[]);
-
-  const propietarios = users.filter(u=>u.role==='PROPIETARIO');
-  const inquilinos = users.filter(u=>u.role==='INQUILINO');
-
-  async function assignOwner(propId, ownerId){
-    try{ await api(`/admin/properties/${propId}/assign`,{method:'PATCH', body:{owner_id:ownerId}}); setMsg('Propietario asignado'); loadAll(); }catch(ex){ setMsg(ex.message); }
-  }
-  async function createContract(e){
-    e.preventDefault();
-    try{ await api('/contracts',{method:'POST', body:{...formContract, rent_amount:Number(formContract.rent_amount)}}); setMsg('Contrato creado - propiedad pasa a alquilada'); loadAll(); }catch(ex){ setMsg(ex.message); }
-  }
-  async function documentPay(e){
-    e.preventDefault();
-    try{
-      const fd = new FormData();
-      fd.append('amount', formPay.amount);
-      fd.append('due_date', formPay.due_date);
-      fd.append('method', formPay.method);
-      if (file) fd.append('receipt', file);
-      const res = await fetch(`${API}/api/contracts/${formPay.contract_id}/payments`, { method:'POST', body:fd, credentials:'include' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error||'Error');
-      setMsg(`Pago documentado: $${data.amount} - ${data.receipt_url?'con comprobante':'sin comprobante'} (solo documentación, no procesa dinero)`);
-      loadAll();
-    }catch(ex){ setMsg(ex.message); }
-  }
-
   return (
     <DashboardLayout title="Panel Inmobiliaria (ADMIN)">
-      {msg && <div style={{background:'#fff7fb',padding:10,borderRadius:8,marginBottom:12,border:'1px solid #ffd0e8'}}>{msg}</div>}
-
-      {/* Panel principal: carga de propiedades */}
       <AdminPropiedades />
-
-      <details style={{marginTop:28}}>
-        <summary style={{cursor:'pointer',fontWeight:700,opacity:0.75,marginBottom:14}}>Usuarios, contratos y pagos (heredado)</summary>
-
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
-        {/* Usuarios */}
-        <div style={{background:'rgba(255,255,255,0.85)',padding:16,borderRadius:14}}>
-          <h3>Usuarios ({users.length}) - RENAPER + 2FA</h3>
-          <div style={{maxHeight:260,overflow:'auto',fontSize:13}}>
-            {users.map(u=>(
-              <div key={u.id} style={{padding:8,borderBottom:'1px solid #eee',display:'flex',justifyContent:'space-between'}}>
-                <span>{u.nombre} {u.apellido} — {u.email} <br/><small>{u.role} · DNI ***{u.dni_last4} · {u.renaper_status} · {u.email_verified?'✓ mail':'pend mail'}</small></span>
-                <span style={{opacity:0.6,fontSize:11}}>{new Date(u.created_at).toLocaleDateString()}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Crear propiedad: se hace desde el panel de propiedades de arriba */}
-      </div>
-
-      {/* Propiedades + asignar */}
-      <div style={{background:'rgba(255,255,255,0.85)',padding:16,borderRadius:14,marginTop:16}}>
-        <h3>Propiedades ({props.length}) - Asignar propietario</h3>
-        {props.map(p=>(
-          <div key={p.id} style={{padding:10,borderBottom:'1px solid #eee',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-            <span><b>{p.title}</b> — {p.address} — {p.price} <small style={{opacity:0.6}}>[{p.status}] {p.owner_id?'· Propietario asignado':'· Sin propietario'}</small></span>
-            <select onChange={e=> e.target.value && assignOwner(p.id, e.target.value)} defaultValue="" style={{padding:'6px 10px',borderRadius:8}}>
-              <option value="">Asignar propietario...</option>
-              {propietarios.map(pr=> <option key={pr.id} value={pr.id}>{pr.nombre} {pr.apellido} ({pr.email})</option>)}
-            </select>
-          </div>
-        ))}
-      </div>
-
-      {/* Crear contrato */}
-      <div style={{background:'rgba(255,255,255,0.85)',padding:16,borderRadius:14,marginTop:16}}>
-        <h3>Crear contrato (vincula propiedad + propietario + inquilino) - Solo documentación</h3>
-        <form onSubmit={createContract} style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-          <select required value={formContract.property_id} onChange={e=>setFormContract({...formContract,property_id:e.target.value})} style={inp}><option value="">Propiedad...</option>{props.filter(p=>p.status==='disponible').map(p=> <option key={p.id} value={p.id}>{p.title} - {p.address}</option>)}</select>
-          <select required value={formContract.owner_id} onChange={e=>setFormContract({...formContract,owner_id:e.target.value})} style={inp}><option value="">Propietario...</option>{propietarios.map(u=> <option key={u.id} value={u.id}>{u.nombre} {u.apellido}</option>)}</select>
-          <select required value={formContract.tenant_id} onChange={e=>setFormContract({...formContract,tenant_id:e.target.value})} style={inp}><option value="">Inquilino...</option>{inquilinos.map(u=> <option key={u.id} value={u.id}>{u.nombre} {u.apellido}</option>)}</select>
-          <input type="date" required value={formContract.start_date} onChange={e=>setFormContract({...formContract,start_date:e.target.value})} style={inp} />
-          <input type="date" required value={formContract.end_date} onChange={e=>setFormContract({...formContract,end_date:e.target.value})} style={inp} />
-          <input placeholder="Monto alquiler ARS" type="number" required value={formContract.rent_amount} onChange={e=>setFormContract({...formContract,rent_amount:e.target.value})} style={inp} />
-          <button className="btn" type="submit" style={{gridColumn:'1 / -1'}}>Crear contrato</button>
-        </form>
-      </div>
-
-      {/* Contratos y documentar pagos */}
-      <div style={{background:'rgba(255,255,255,0.85)',padding:16,borderRadius:14,marginTop:16}}>
-        <h3>Contratos ({contracts.length}) y documentación de pagos</h3>
-        {contracts.map(c=>(
-          <div key={c.id} style={{padding:12,border:'1px solid #eee',borderRadius:10,marginBottom:10}}>
-            <div><b>{c.property?.title}</b> — {c.property?.address} — ${c.rent_amount} {c.currency} — {c.status}</div>
-            <div style={{fontSize:12,opacity:0.7}}>Propietario: {c.owner_id} · Inquilino: {c.tenant_id} · {new Date(c.start_date).toLocaleDateString()} → {new Date(c.end_date).toLocaleDateString()}</div>
-            <div style={{fontSize:12,marginTop:6}}>Pagos documentados: {c.payments?.length||0} {c.payments?.map(p=> <span key={p.id} style={{marginLeft:8,background:'#eef6ff',padding:'2px 6px',borderRadius:6}}>${p.amount} {p.status} {p.receipt_url?'📎':''}</span>)}</div>
-          </div>
-        ))}
-        <form onSubmit={documentPay} style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:12,background:'#fff7fb',padding:12,borderRadius:10}}>
-          <select required value={formPay.contract_id} onChange={e=>setFormPay({...formPay,contract_id:e.target.value})} style={inp}><option value="">Contrato...</option>{contracts.map(c=> <option key={c.id} value={c.id}>{c.property?.title} - ${c.rent_amount}</option>)}</select>
-          <input type="number" placeholder="Monto" required value={formPay.amount} onChange={e=>setFormPay({...formPay,amount:e.target.value})} style={inp} />
-          <input type="date" required value={formPay.due_date} onChange={e=>setFormPay({...formPay,due_date:e.target.value})} style={inp} />
-          <select value={formPay.method} onChange={e=>setFormPay({...formPay,method:e.target.value})} style={inp}><option>transferencia</option><option>efectivo</option><option>cheque</option></select>
-          <input type="file" accept=".jpg,.png,.pdf" onChange={e=>setFile(e.target.files[0])} style={{gridColumn:'1 / -1'}} />
-          <small style={{gridColumn:'1 / -1',opacity:0.6}}>Comprobante (JPG/PNG/PDF, max 8MB) - se guarda en /uploads/receipts y se referencia como documentación. En prod se encripta AES antes de subir a S3.</small>
-          <button className="btn" type="submit" style={{gridColumn:'1 / -1'}}>Documentar pago (solo registro)</button>
-        </form>
-      </div>
-      </details>
     </DashboardLayout>
   );
 }
-
-const inp = { padding:'10px 12px', borderRadius:10, border:'1px solid #ddd', width:'100%', boxSizing:'border-box' };
 
 // -------- PROPIETARIO --------
 export function PropDashboard(){
